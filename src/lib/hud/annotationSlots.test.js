@@ -1,76 +1,138 @@
 import { describe, expect, it } from 'vitest';
-import { ANNOTATION_SLOTS, CARD_WIDTH_PX, pickSlots, SLOT_COLUMN_EDGE_PCT, SLOT_ROW_PITCH_PCT } from './annotationSlots.js';
+import {
+  ANNOTATION_CANDIDATES,
+  CARD_HEIGHT_PX,
+  CARD_WIDTH_PX,
+  placeAnnotations,
+  rollsRandom,
+} from './annotationSlots.js';
 
-/** A random() that replays the given values, then repeats the last one. */
-function sequence(...values) {
-  let index = 0;
-  return () => values[Math.min(index++, values.length - 1)];
+const CARD = { width: CARD_WIDTH_PX, height: CARD_HEIGHT_PX };
+const DESKTOP = { width: 1280, height: 713 };
+// The 1280x713 H1 band measured in the browser: full gutter width, top 320, bottom 448.
+const H1_BAND = { left: 64, top: 320, right: 1216, bottom: 448 };
+const MARGIN = 12;
+
+const intersects = (a, b, gap = 0) =>
+  a.left < b.right + gap && a.right + gap > b.left && a.top < b.bottom + gap && a.bottom + gap > b.top;
+const rectOf = (slot) => ({ left: slot.left, top: slot.top, right: slot.left + CARD.width, bottom: slot.top + CARD.height });
+
+/** A small deterministic generator (Park-Miller) for property-style loops. */
+function seeded(seed) {
+  let state = seed + 1;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return state / 2147483647;
+  };
 }
 
-describe('ANNOTATION_SLOTS', () => {
-  it('has 8 uniquely named slots over the skull area, two columns by four rows', () => {
-    expect(ANNOTATION_SLOTS).toHaveLength(8);
-    expect(new Set(ANNOTATION_SLOTS.map((slot) => slot.id)).size).toBe(8);
-    expect(ANNOTATION_SLOTS.filter((slot) => slot.side === 'left')).toHaveLength(4);
-    expect(ANNOTATION_SLOTS.filter((slot) => slot.side === 'right')).toHaveLength(4);
-    for (const slot of ANNOTATION_SLOTS) {
-      expect(slot.top).toBeGreaterThanOrEqual(30);
-      expect(slot.top).toBeLessThanOrEqual(70);
-    }
+function place(overrides = {}) {
+  return placeAnnotations({
+    candidates: ANNOTATION_CANDIDATES,
+    cardSize: CARD,
+    obstacles: [],
+    viewport: DESKTOP,
+    random: seeded(1),
+    count: 4,
+    ...overrides,
   });
+}
 
-  it('keeps any two distinct slots collision-free at the md breakpoint (768 px)', () => {
-    const viewport = 768;
-    const widthPct = (CARD_WIDTH_PX / viewport) * 100;
-    for (const a of ANNOTATION_SLOTS) {
-      for (const b of ANNOTATION_SLOTS) {
-        if (a.id >= b.id) continue;
-        const sameRow = Math.abs(a.top - b.top) < SLOT_ROW_PITCH_PCT;
-        if (!sameRow) continue;
-        // Same row: they must sit in different columns whose horizontal spans do not touch.
-        expect(a.side).not.toBe(b.side);
-        expect(SLOT_COLUMN_EDGE_PCT + widthPct).toBeLessThan(100 - SLOT_COLUMN_EDGE_PCT - widthPct);
-      }
+describe('ANNOTATION_CANDIDATES', () => {
+  it('lists 16 uniquely named candidates in 8 regions over the skull area', () => {
+    expect(ANNOTATION_CANDIDATES).toHaveLength(16);
+    expect(new Set(ANNOTATION_CANDIDATES.map((c) => c.id)).size).toBe(16);
+    expect(new Set(ANNOTATION_CANDIDATES.map((c) => c.region)).size).toBe(8);
+    for (const c of ANNOTATION_CANDIDATES) {
+      expect(c.x).toBeGreaterThanOrEqual(25);
+      expect(c.x).toBeLessThanOrEqual(75);
+      expect(c.y).toBeGreaterThanOrEqual(18);
+      expect(c.y).toBeLessThanOrEqual(85);
     }
   });
 });
 
-describe('pickSlots', () => {
-  it('returns 4 distinct slots by default', () => {
-    const picked = pickSlots(Math.random);
-    expect(picked).toHaveLength(4);
-    expect(new Set(picked.map((slot) => slot.id)).size).toBe(4);
+describe('placeAnnotations', () => {
+  it('places the requested number of cards when the frame is empty', () => {
+    expect(place()).toHaveLength(4);
   });
 
-  it('is deterministic for an injected random', () => {
-    const first = pickSlots(sequence(0, 0, 0, 0));
-    const second = pickSlots(sequence(0, 0, 0, 0));
-    expect(first).toEqual(second);
-    expect(first.map((slot) => slot.id)).toEqual(ANNOTATION_SLOTS.slice(0, 4).map((slot) => slot.id));
-  });
-
-  it('follows the random values (a partial Fisher-Yates)', () => {
-    const picked = pickSlots(sequence(0.999, 0.999, 0.999, 0.999));
-    expect(picked.map((slot) => slot.id)).toEqual(
-      [ANNOTATION_SLOTS[7], ANNOTATION_SLOTS[0], ANNOTATION_SLOTS[1], ANNOTATION_SLOTS[2]].map((slot) => slot.id),
-    );
-  });
-
-  it('never returns the same slot twice for any random stream', () => {
-    for (let seed = 0; seed < 50; seed += 1) {
-      let state = seed + 1;
-      const random = () => {
-        state = (state * 16807) % 2147483647;
-        return state / 2147483647;
-      };
-      const ids = pickSlots(random).map((slot) => slot.id);
-      expect(new Set(ids).size).toBe(4);
+  it('never intersects an obstacle, margin included, including an H1-like wide band', () => {
+    for (let seed = 0; seed < 60; seed += 1) {
+      const slots = place({ obstacles: [H1_BAND], random: seeded(seed) });
+      for (const slot of slots) expect(intersects(rectOf(slot), H1_BAND, MARGIN), `seed ${seed} ${slot.id}`).toBe(false);
     }
   });
 
-  it('does not mutate the slot table', () => {
-    const before = ANNOTATION_SLOTS.map((slot) => slot.id);
-    pickSlots(sequence(0.9, 0.1, 0.5, 0.3));
-    expect(ANNOTATION_SLOTS.map((slot) => slot.id)).toEqual(before);
+  it('never lets two cards intersect', () => {
+    for (let seed = 0; seed < 60; seed += 1) {
+      const slots = place({ random: seeded(seed) }).map(rectOf);
+      for (let i = 0; i < slots.length; i += 1) {
+        for (let j = i + 1; j < slots.length; j += 1) expect(intersects(slots[i], slots[j])).toBe(false);
+      }
+    }
+  });
+
+  it('spreads the cards across different regions and both sides', () => {
+    for (let seed = 0; seed < 60; seed += 1) {
+      const slots = place({ random: seeded(seed) });
+      expect(new Set(slots.map((s) => s.region)).size).toBe(slots.length);
+      expect(slots.filter((s) => s.side === 'left').length).toBeLessThanOrEqual(2);
+      expect(slots.filter((s) => s.side === 'right').length).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('keeps every card inside the viewport', () => {
+    for (let seed = 0; seed < 30; seed += 1) {
+      for (const slot of place({ random: seeded(seed), viewport: { width: 768, height: 600 } })) {
+        const r = rectOf(slot);
+        expect(r.left).toBeGreaterThanOrEqual(0);
+        expect(r.top).toBeGreaterThanOrEqual(0);
+        expect(r.right).toBeLessThanOrEqual(768);
+        expect(r.bottom).toBeLessThanOrEqual(600);
+      }
+    }
+  });
+
+  it('returns fewer cards when the obstacles leave too little room, and none when nothing fits', () => {
+    const wall = { left: 0, top: 0, right: 1280, bottom: 713 };
+    expect(place({ obstacles: [wall] })).toEqual([]);
+    const leftHalf = { left: 0, top: 0, right: 640, bottom: 713 };
+    const slots = place({ obstacles: [leftHalf] });
+    expect(slots.length).toBeGreaterThan(0);
+    expect(slots.length).toBeLessThan(4);
+    for (const slot of slots) expect(slot.side).toBe('right');
+  });
+
+  it('ignores obstacles without area (elements that are not laid out)', () => {
+    const empty = { left: 0, top: 0, right: 0, bottom: 0 };
+    expect(place({ obstacles: [empty] })).toHaveLength(4);
+  });
+
+  it('is deterministic for an injected random and follows it', () => {
+    const a = place({ random: seeded(7) });
+    const b = place({ random: seeded(7) });
+    expect(a).toEqual(b);
+    const others = new Set(Array.from({ length: 20 }, (_, seed) => place({ random: seeded(seed) }).map((s) => s.id).join()));
+    expect(others.size).toBeGreaterThan(1);
+  });
+
+  it('reports px positions and the side facing away from the skull centre', () => {
+    for (const slot of place()) {
+      expect(Number.isFinite(slot.left)).toBe(true);
+      expect(Number.isFinite(slot.top)).toBe(true);
+      const centre = slot.left + CARD.width / 2;
+      expect(slot.side).toBe(centre < DESKTOP.width / 2 ? 'left' : 'right');
+    }
+  });
+});
+
+describe('rollsRandom', () => {
+  it('replays the same sequence from a fresh reader each time, then repeats the last roll', () => {
+    const rolls = [0.1, 0.2];
+    const first = rollsRandom(rolls);
+    expect([first(), first(), first()]).toEqual([0.1, 0.2, 0.2]);
+    const second = rollsRandom(rolls);
+    expect(second()).toBe(0.1);
   });
 });

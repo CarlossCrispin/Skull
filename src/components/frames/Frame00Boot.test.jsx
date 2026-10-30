@@ -245,3 +245,26 @@ describe('Frame00Boot skull annotations', () => {
     for (const card of container.querySelectorAll('[data-annotation]')) expect(card).toHaveClass('invisible');
   });
 });
+
+describe('Frame00Boot annotation obstacles', () => {
+  it('marks the title block, nodes, CTA, info card, ruler and nav as areas the annotations avoid', () => {
+    const { container } = mount();
+    const avoided = [...container.querySelectorAll('[data-hud-avoid]')];
+    const has = (selector) => avoided.some((el) => el.matches(selector) || el.querySelector(selector) !== null);
+    const title = container.querySelector('h1');
+    expect(avoided.some((el) => el.contains(title))).toBe(true);
+    expect(avoided.some((el) => el.contains(title) && el.querySelector('p') !== null)).toBe(true);
+    expect(container.querySelectorAll('[data-hud-node][data-hud-avoid]')).toHaveLength(3);
+    expect(container.querySelector('button[data-hud-avoid]')).not.toBeNull();
+    expect(container.querySelector('[data-info-card][data-hud-avoid]')).not.toBeNull();
+    expect(container.querySelector('[data-hud-ruler][data-hud-avoid]')).not.toBeNull();
+    expect(container.querySelector('nav[data-hud-avoid]')).not.toBeNull();
+    expect(has('h1')).toBe(true);
+  });
+
+  it('does not mark the annotation layer itself', () => {
+    const { container } = mount();
+    expect(container.querySelector('[data-annotations][data-hud-avoid]')).toBeNull();
+  });
+});
+

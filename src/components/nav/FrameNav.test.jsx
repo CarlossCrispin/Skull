@@ -137,7 +137,7 @@ describe('FrameNav entrance', () => {
     expect(entrances.length).toBeGreaterThanOrEqual(8);
     for (const element of entrances) {
       expect(element).toHaveClass('invisible');
-      expect(element.className).not.toMatch(/hud-/);
+      expect(element.className).not.toMatch(/hud-(?!avoid)/);
     }
   });
 
@@ -164,6 +164,6 @@ describe('FrameNav entrance', () => {
   it('shows everything at once under reduced motion', () => {
     const { container } = mount({ revealGate: false, reducedMotion: true });
     expect(container.querySelector('.invisible')).toBeNull();
-    expect(container.innerHTML).not.toMatch(/hud-/);
+    expect(container.innerHTML).not.toMatch(/hud-(?!avoid)/);
   });
 });

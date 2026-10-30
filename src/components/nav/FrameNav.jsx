@@ -65,6 +65,7 @@ export function FrameNav({ revealGate, reducedMotion }) {
   const menuButton = entrance('menu-button', 'hud-fade-up', MENU_BUTTON_MS);
   return (
     <nav
+      data-hud-avoid=""
       aria-label="Navegación principal"
       className={`relative z-50 flex h-16 items-center justify-between ${HUD_GUTTER_CLASSES}`}
     >

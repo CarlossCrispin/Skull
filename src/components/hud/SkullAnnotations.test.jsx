@@ -1,6 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ANNOTATION_SLOTS } from '../../lib/hud/annotationSlots.js';
+import { CARD_HEIGHT_PX, CARD_WIDTH_PX } from '../../lib/hud/annotationSlots.js';
 import { SkullAnnotations } from './SkullAnnotations.jsx';
 
 const OPEN = { reducedMotion: false, revealGate: true, skullAssembled: true };
@@ -8,8 +8,7 @@ const CLOSED = { reducedMotion: false, revealGate: false, skullAssembled: true }
 const GONE = { reducedMotion: false, revealGate: true, skullAssembled: false };
 const REDUCED = { reducedMotion: true, revealGate: false, skullAssembled: true };
 
-// random() = 0 always picks the first four slots in table order: L1, L2, L3, L4.
-const FIRST_FOUR = () => 0;
+const ROLL = () => 0.3;
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -17,10 +16,18 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
-function mount(props = OPEN, random = FIRST_FOUR) {
+function mount(props = OPEN, random = ROLL) {
   const view = render(<SkullAnnotations {...props} random={random} />);
   return { ...view, root: view.container.firstElementChild };
 }
+
+const rectOf = (left, top, width, height) => ({ left, top, width, height, right: left + width, bottom: top + height, x: left, y: top });
+const cardRect = (card) => {
+  const left = Number.parseFloat(card.style.left);
+  const top = Number.parseFloat(card.style.top);
+  return { left, top, right: left + CARD_WIDTH_PX, bottom: top + CARD_HEIGHT_PX };
+};
+const hits = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 
 describe('SkullAnnotations content', () => {
   it('shows the four approved cards with their labels and values', () => {
@@ -85,41 +92,81 @@ describe('SkullAnnotations look', () => {
 
   it('points each card at the skull with an aria-hidden leader on the inner side', () => {
     const { root } = mount();
-    const left = root.querySelector('[data-annotation="L1"]');
-    const leader = left.querySelector('[data-leader]');
-    expect(leader).toHaveAttribute('aria-hidden', 'true');
-    expect(leader).toHaveClass('left-full');
+    for (const card of root.querySelectorAll('[data-annotation]')) {
+      const leader = card.querySelector('[data-leader]');
+      expect(leader).toHaveAttribute('aria-hidden', 'true');
+      expect(leader).toHaveClass(card.getAttribute('data-side') === 'left' ? 'left-full' : 'right-full');
+    }
   });
 
-  it('mirrors the leader for right-hand slots', () => {
-    // random=0.999 takes R4 first, then L1, L2, L3 (see annotationSlots).
-    const { root } = mount(OPEN, () => 0.999);
-    const rightCard = root.querySelector('[data-annotation]');
-    expect(rightCard).toHaveClass('right-[24%]');
-    expect(rightCard.querySelector('[data-leader]')).toHaveClass('right-full');
+  it('clips the frost to the chamfer so no corner shows outside the cut', () => {
+    const { root } = mount();
+    for (const frost of root.querySelectorAll('.glass-frost')) expect(frost).toHaveClass('chamfer-clip');
   });
 });
 
 describe('SkullAnnotations placement', () => {
-  it('places the cards at the picked slots, never overlapping', () => {
-    const { root } = mount(OPEN, () => 0.3);
+  afterEach(() => vi.restoreAllMocks());
+
+  function mountMeasured({ h1 = rectOf(64, 320, 1152, 128), random = ROLL } = {}) {
+    const state = { h1 };
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function rect() {
+      if (this.hasAttribute('data-hud-avoid')) return state.h1;
+      if (this.hasAttribute('data-annotations')) return rectOf(0, 0, 1280, 713);
+      return rectOf(0, 0, 0, 0);
+    });
+    const obstacle = document.createElement('div');
+    obstacle.setAttribute('data-hud-avoid', '');
+    document.body.append(obstacle);
+    const view = render(<SkullAnnotations {...OPEN} random={random} />);
+    const root = view.container.firstElementChild;
+    return { ...view, root, state, obstacle };
+  }
+
+  afterEach(() => document.querySelectorAll('body > [data-hud-avoid]').forEach((el) => el.remove()));
+
+  it('measures the layer and the avoid-marked obstacles on mount', () => {
+    const { root } = mountMeasured();
+    expect(root).toHaveAttribute('data-annotations');
+    expect(Element.prototype.getBoundingClientRect).toHaveBeenCalled();
+  });
+
+  it('keeps every card clear of the measured H1 band and of the other cards', () => {
+    const { root, state } = mountMeasured();
+    const rects = [...root.querySelectorAll('[data-annotation]')].map(cardRect);
+    expect(rects).toHaveLength(4);
+    rects.forEach((rect, i) => {
+      expect(hits(rect, { left: 64 - 12, top: state.h1.top - 12, right: 1216 + 12, bottom: state.h1.bottom + 12 })).toBe(false);
+      rects.slice(i + 1).forEach((other) => expect(hits(rect, other)).toBe(false));
+    });
+  });
+
+  it('renders fewer cards, keeping SYS_TIME and OPERADOR first, when the space runs out', () => {
+    const { root } = mountMeasured({ h1: rectOf(0, 0, 640, 713) });
+    const labels = [...root.querySelectorAll('[data-annotation] p.label-mono')].map((el) => el.textContent);
+    expect(labels.length).toBeLessThan(4);
+    expect(labels.length).toBeGreaterThan(1);
+    expect(labels).toContain('//SYS_TIME');
+    expect(labels).toContain('//OPERADOR_');
+  });
+
+  it('re-places the cards when the window is resized, without calling random again', () => {
+    const random = vi.fn(() => 0.3);
+    const { root, state } = mountMeasured({ h1: rectOf(0, 900, 10, 10), random });
+    const calls = random.mock.calls.length;
+    const before = [...root.querySelectorAll('[data-annotation]')].map((card) => card.style.top + card.style.left);
+    state.h1 = rectOf(64, 150, 1152, 520);
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+      vi.advanceTimersByTime(100);
+    });
     const cards = [...root.querySelectorAll('[data-annotation]')];
-    const ids = cards.map((card) => card.getAttribute('data-annotation'));
-    expect(new Set(ids).size).toBe(4);
-    for (const card of cards) {
-      const slot = ANNOTATION_SLOTS.find((s) => s.id === card.getAttribute('data-annotation'));
-      expect(card.style.top).toBe(`${slot.top}%`);
-      expect(card).toHaveClass(slot.side === 'left' ? 'left-[24%]' : 'right-[24%]');
-    }
+    expect(cards.map((card) => card.style.top + card.style.left)).not.toEqual(before);
+    for (const card of cards) expect(hits(cardRect(card), { left: 52, top: 138, right: 1228, bottom: 682 })).toBe(false);
+    expect(random.mock.calls.length).toBe(calls);
   });
 
-  it('assigns the cards to the picked slots in order', () => {
-    const { root } = mount();
-    const ids = [...root.querySelectorAll('[data-annotation]')].map((card) => card.getAttribute('data-annotation'));
-    expect(ids).toEqual(['L1', 'L2', 'L3', 'L4']);
-  });
-
-  it('keeps the positions for the whole session (no reshuffle on re-render)', () => {
+  it('keeps the positions across re-renders (only a resize recomputes)', () => {
     const random = vi.fn(() => 0.4);
     const { root, rerender } = mount(OPEN, random);
     const before = [...root.querySelectorAll('[data-annotation]')].map((card) => card.getAttribute('data-annotation'));
@@ -131,6 +178,13 @@ describe('SkullAnnotations placement', () => {
     const after = [...root.querySelectorAll('[data-annotation]')].map((card) => card.getAttribute('data-annotation'));
     expect(after).toEqual(before);
     expect(random.mock.calls.length).toBe(calls);
+  });
+
+  it('removes the resize listener on unmount', () => {
+    const remove = vi.spyOn(window, 'removeEventListener');
+    const { unmount } = mount();
+    unmount();
+    expect(remove).toHaveBeenCalledWith('resize', expect.any(Function));
   });
 });
 
