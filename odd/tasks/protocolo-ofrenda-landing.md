@@ -44,7 +44,7 @@ Mode: strict (source: the user's global CLAUDE.md "Strict TDD Mode: enabled"). R
 - [ ] T8 Verification: full tests, build, check:dist, and a browser pass at 320/390/768/1024/1440 (overflow, contrast, motion).
 
 ## Delivery
-Forecast: well above 400 authored changed lines, so the feature needs slicing. Chain strategy: PENDING (ask-on-risk). Remote: origin `CarlossCrispin/Skull.git`; push and PRs stay the user's decision.
+Forecast: well above 400 authored changed lines, so the feature needs slicing. Delivery strategy: ask-on-risk; chain strategy: stacked-to-main (user, 2026-10-30). Review boundary: fb52cc8 (bootstrap root commit, scaffold copied from reviewed Skull code). Remote: origin `CarlossCrispin/Skull.git`; push and PRs stay the user's decision.
 
 ## Progress
 - 2026-10-30: scaffold copied from Skull, git init (main, no commits), remote added, `npm ci` done. Baseline does not compile yet (T1).
