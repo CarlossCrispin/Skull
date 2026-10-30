@@ -369,3 +369,9 @@
     opacity: 1;
   }
 }
+
+/* Mobile menu panel: the page background token, fully opaque (no blur, no translucency). It is a utility
+   because components never paint bg-bg themselves; the body owns the one light surface. */
+@utility nav-panel {
+  background-color: var(--color-bg);
+}

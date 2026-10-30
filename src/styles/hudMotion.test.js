@@ -61,3 +61,11 @@ describe('HUD entrance utilities', () => {
     expect(css).not.toMatch(/stroke-dash/);
   });
 });
+
+describe('nav panel surface', () => {
+  it('is a solid bg-token surface: no blur, translucency or filter', () => {
+    const body = block(css, '@utility nav-panel ');
+    expect(body).toMatch(/background-color:\s*var\(--color-bg\);/);
+    expect(body).not.toMatch(/blur|backdrop|filter|opacity|color-mix|rgba/);
+  });
+});

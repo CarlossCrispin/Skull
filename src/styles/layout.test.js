@@ -1,6 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { CARD_CLASSES, CARD_MAX_WIDTH_PX, GUTTER_CLASSES } from './layout.js';
+import {
+  CARD_CLASSES,
+  CARD_MAX_WIDTH_PX,
+  GUTTER_CLASSES,
+  HUD_GUTTER_CLASSES,
+  HUD_GUTTER_LEFT_CLASSES,
+  HUD_GUTTER_RIGHT_CLASSES,
+} from './layout.js';
 
 /** Selectors of flat rules in `css` that declare `font-size`. */
 function fontSizeSelectors(css) {
@@ -13,6 +20,13 @@ function fontSizeSelectors(css) {
 describe('layout constants', () => {
   it('uses the approved responsive gutters (20 / 32 / 48 px)', () => {
     expect(GUTTER_CLASSES).toBe('px-5 sm:px-8 md:px-12');
+  });
+
+  it('keeps the shared gutters untouched and adds the HUD frame gutter (20 px, 35 px from md)', () => {
+    expect(GUTTER_CLASSES).toBe('px-5 sm:px-8 md:px-12');
+    expect(HUD_GUTTER_CLASSES).toBe('px-5 md:px-[35px]');
+    expect(HUD_GUTTER_LEFT_CLASSES).toBe('left-5 md:left-[35px]');
+    expect(HUD_GUTTER_RIGHT_CLASSES).toBe('right-5 md:right-[35px]');
   });
 
   it('centers a card of at most 720 px: max-w-180 is 180 x 4 px, padded 24 / 40 px and 4 svh vertically', () => {
