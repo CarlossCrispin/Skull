@@ -25,6 +25,9 @@ export function PageShell({ sections = SECTIONS }) {
   const opening = useOpening({ reducedMotion });
   // The HUD shows over the assembled skull: the gate opens at zoom end (hold), not after the explosion.
   const revealGate = opening.phase !== 'waiting' && opening.phase !== 'zoom';
+  // The annotations describe the assembled skull: present until the first scroll explodes it. The static path
+  // (reduced motion, failed scene) only shows a faint backdrop, so it never counts as assembled.
+  const skullAssembled = opening.phase === 'waiting' || opening.phase === 'zoom' || opening.phase === 'hold';
   const [mirror] = useState(createFrameMirror);
   const [sceneStatus, setSceneStatus] = useState('loading');
   const { reportStatus } = opening;
@@ -41,7 +44,7 @@ export function PageShell({ sections = SECTIONS }) {
       <GlassContext.Provider value={glass}>
         <GridOverlay />
         {sections.map(({ id, Component }) => (
-          <Component key={id} reducedMotion={reducedMotion} revealGate={revealGate} />
+          <Component key={id} reducedMotion={reducedMotion} revealGate={revealGate} skullAssembled={skullAssembled} />
         ))}
         <SkullHero
           reducedMotion={reducedMotion}

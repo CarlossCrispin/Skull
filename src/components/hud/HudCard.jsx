@@ -5,6 +5,7 @@ import { ChamferFrame } from '../glass/ChamferFrame.jsx';
  * @property {ReactNode} [children]
  * @property {string} [label] - Optional badge sitting on the card's top edge.
  * @property {'accent' | 'signal'} [tone] - Badge color token: `accent` (default, bg text on accent) or `signal` (ink text on signal).
+ * @property {string} [padding] - Content padding class; defaults to `p-5`.
  * @property {string} [className] - Extra classes: the frame passes the width and position.
  */
 
@@ -17,7 +18,7 @@ const BADGE_TONE = {
  * HUD card: the shared chamfered grey frame around uniformly padded content, with an optional
  * square accent badge above it. No radius, border or shadow; the frame is the only outline.
  */
-export function HudCard({ children, label, tone = 'accent', className = '' }) {
+export function HudCard({ children, label, tone = 'accent', padding = 'p-5', className = '' }) {
   return (
     <div className={`relative ${className}`}>
       {label === undefined ? null : (
@@ -26,7 +27,7 @@ export function HudCard({ children, label, tone = 'accent', className = '' }) {
         </span>
       )}
       <ChamferFrame />
-      <div className="relative p-5">{children}</div>
+      <div className={`relative ${padding}`}>{children}</div>
     </div>
   );
 }

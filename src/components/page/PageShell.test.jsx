@@ -90,6 +90,10 @@ describe('PageShell composition', () => {
 
 describe('PageShell registry', () => {
   it('renders an appended stub after the sections and leaves the existing markup identical', () => {
+    // The annotation slots and the clock are the only non-deterministic markup: pin both.
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-01T18:30:05Z'));
     const base = mount();
     // useId values differ between mounts; the markup is otherwise compared byte for byte.
     const stable = (html) => html?.replace(/(id|aria-labelledby)="[^"]*"/g, '$1="#"');
@@ -102,6 +106,7 @@ describe('PageShell registry', () => {
     expect(withStub.sections[2]?.getAttribute('data-stub')).toBe('altar');
     expect(withStub.sections[1]?.hasAttribute('data-assembly-range')).toBe(true);
     expect([withStub.sections[0]?.outerHTML, withStub.sections[1]?.outerHTML, withStub.layer.outerHTML].map(stable)).toEqual(baseHtml);
+    vi.restoreAllMocks();
   });
 });
 
@@ -166,6 +171,27 @@ describe('PageShell opening wiring', () => {
     expect(seen.at(-1)).toBe(true);
     act(() => void vi.advanceTimersByTime(60_000));
     expect(hook.calls.at(-1).readScrollFrame().opening?.phase).toBe('hold');
+  });
+
+  it('marks the skull assembled through the wait, zoom and hold, and not after the first scroll', () => {
+    vi.useFakeTimers();
+    const seen = [];
+    const probe = { id: 'probe', Component: ({ skullAssembled }) => { seen.push(skullAssembled); return null; } };
+    hook.status = 'ready';
+    mount(false, [probe]);
+    expect(seen.at(-1)).toBe(true);
+    act(() => void vi.advanceTimersByTime(60_000));
+    expect(hook.calls.at(-1).readScrollFrame().opening?.phase).toBe('hold');
+    expect(seen.at(-1)).toBe(true);
+    act(() => void fireEvent.scroll(window));
+    expect(seen.at(-1)).toBe(false);
+  });
+
+  it('never marks the skull assembled under reduced motion (the static path shows only the faint backdrop)', () => {
+    const seen = [];
+    const probe = { id: 'probe', Component: ({ skullAssembled }) => { seen.push(skullAssembled); return null; } };
+    mount(true, [probe]);
+    expect(seen.at(-1)).toBe(false);
   });
 
   it('opens the gate at once under reduced motion', () => {

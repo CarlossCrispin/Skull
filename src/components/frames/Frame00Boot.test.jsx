@@ -6,9 +6,9 @@ vi.mock('../../lib/scroll/useScrollProgress.js', () => ({ useScrollProgress: () 
 
 const { Frame00Boot, FRAME_00_ID } = await import('./Frame00Boot.jsx');
 
-const OPEN = { reducedMotion: false, revealGate: true };
-const CLOSED = { reducedMotion: false, revealGate: false };
-const REDUCED = { reducedMotion: true, revealGate: true };
+const OPEN = { reducedMotion: false, revealGate: true, skullAssembled: true };
+const CLOSED = { reducedMotion: false, revealGate: false, skullAssembled: true };
+const REDUCED = { reducedMotion: true, revealGate: true, skullAssembled: false };
 
 function mount(props = OPEN) {
   const view = render(<Frame00Boot {...props} />);
@@ -213,8 +213,35 @@ describe('Frame00Boot entrance gate', () => {
   });
 
   it('shows everything immediately under reduced motion', () => {
-    const { section } = mount({ reducedMotion: true, revealGate: false });
+    const { section } = mount({ reducedMotion: true, revealGate: false, skullAssembled: true });
     expect(section.querySelector('.invisible')).toBeNull();
     expect(section.querySelectorAll('[class*="hud-"]')).toHaveLength(0);
+  });
+});
+
+describe('Frame00Boot skull annotations', () => {
+  it('renders the four annotation cards in a layer hidden below md, over the skull', () => {
+    const { container } = mount();
+    const layer = container.querySelector('[data-annotation]').parentElement;
+    expect(layer).toHaveClass('hidden', 'md:block');
+    expect(layer.querySelectorAll('[data-annotation]')).toHaveLength(4);
+    expect(container.querySelector('time')).toBeInTheDocument();
+  });
+
+  it('keeps exactly one h1 with the annotations mounted', () => {
+    const { container } = mount();
+    expect(container.querySelectorAll('h1')).toHaveLength(1);
+  });
+
+  it('fades the annotations out when the skull is no longer assembled', () => {
+    const { container } = mount({ reducedMotion: false, revealGate: true, skullAssembled: false });
+    const layer = container.querySelector('[data-annotation]').parentElement;
+    expect(layer).toHaveClass('hud-fade-out');
+  });
+
+  it('keeps them hidden before the gate opens', () => {
+    const { container } = mount(CLOSED);
+    expect(container.querySelectorAll('[data-annotation]')).toHaveLength(4);
+    for (const card of container.querySelectorAll('[data-annotation]')) expect(card).toHaveClass('invisible');
   });
 });

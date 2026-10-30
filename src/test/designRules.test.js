@@ -42,13 +42,14 @@ describe('design rules source scan', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('keeps the glass panel the only element with a translucent frost background [Amendment B]', () => {
+  it('keeps the glass panel and the skull annotations the only elements with a translucent frost background [Amendment B]', () => {
     const frosted = sources.flatMap(([file, text]) =>
       classLists(text)
         .filter((list) => /\bglass-frost\b/.test(list))
         .map(() => file),
     );
-    expect(frosted).toEqual(['components/glass/GlassPanel.jsx']);
+    // The glass card and the skull annotation cards (user decision 2026-10-30) are the only frosted surfaces.
+    expect(frosted).toEqual(['components/glass/GlassPanel.jsx', 'components/hud/SkullAnnotations.jsx']);
     const mixes = sources
       .filter(([file]) => file.endsWith('.css'))
       .flatMap(([, text]) => [...text.matchAll(/color-mix\([^;]*;/g)].map((match) => match[0]));

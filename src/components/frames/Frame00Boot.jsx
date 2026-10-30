@@ -6,6 +6,7 @@ import { ElbowConnector } from '../hud/ConnectorLine.jsx';
 import { DataRow } from '../hud/DataRow.jsx';
 import { GridLines } from '../hud/GridLines.jsx';
 import { HudCard } from '../hud/HudCard.jsx';
+import { SkullAnnotations } from '../hud/SkullAnnotations.jsx';
 import { Ruler } from '../hud/Ruler.jsx';
 import { FrameNav } from '../nav/FrameNav.jsx';
 
@@ -71,7 +72,7 @@ const NODES = [
  *
  * @param {SectionProps} props
  */
-export function Frame00Boot({ reducedMotion, revealGate }) {
+export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
   const progress = useScrollProgress();
   const gate = { revealGate, reducedMotion };
   const animate = revealGate && !reducedMotion;
@@ -115,6 +116,8 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
           Día de Muertos · sistema de memoria
         </p>
       </div>
+
+      <SkullAnnotations reducedMotion={reducedMotion} revealGate={revealGate} skullAssembled={skullAssembled} />
 
       <div data-hud-nodes="" className="hidden md:block">
         <div data-hud-decor="" aria-hidden="true" className={decorClass}>
