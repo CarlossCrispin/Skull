@@ -55,3 +55,22 @@ describe('GridLines', () => {
     expect(html).not.toMatch(/gradient|shadow|blur|opacity|(bg|border|text)-[\w-]+\/\d+/);
   });
 });
+
+describe('GridLines entrance', () => {
+  it('is static by default', () => {
+    const html = grid({ vertical: ['10%'], horizontal: ['10%'] }).outerHTML;
+    expect(html).not.toMatch(/hud-|animation/);
+  });
+
+  it('wipes the lines in and scales the marks in with a stagger when animated', () => {
+    const root = grid({ vertical: ['20%', '80%'], horizontal: ['30%'], animated: true });
+    const vertical = [...root.querySelectorAll<HTMLElement>('[data-grid="line-v"]')];
+    const horizontal = [...root.querySelectorAll<HTMLElement>('[data-grid="line-h"]')];
+    const marks = [...root.querySelectorAll<HTMLElement>('[data-grid="mark"]')];
+    expect(vertical.every((line) => line.classList.contains('hud-grid-v'))).toBe(true);
+    expect(horizontal.every((line) => line.classList.contains('hud-grid-h'))).toBe(true);
+    expect(marks.every((mark) => mark.classList.contains('hud-scale-in'))).toBe(true);
+    expect(vertical[1]?.style.animationDelay).not.toBe(vertical[0]?.style.animationDelay);
+    expect(marks[0]?.style.animationDelay).toBe('240ms');
+  });
+});

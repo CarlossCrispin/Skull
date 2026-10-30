@@ -40,3 +40,23 @@ describe('ElbowConnector', () => {
     }
   });
 });
+
+describe('ConnectorLine entrance', () => {
+  it('is static unless it draws', () => {
+    const { container } = render(<ConnectorLine x1={0} y1={0} x2={10} y2={10} />);
+    expect(container.querySelector('svg')?.getAttribute('class')).not.toContain('hud-draw-line');
+  });
+
+  it('wipes in after its delay when drawn', () => {
+    const { container } = render(<ConnectorLine x1={0} y1={0} x2={10} y2={10} draw delayMs={300} />);
+    const svg = container.querySelector('svg') as SVGSVGElement;
+    expect(svg).toHaveClass('hud-draw-line');
+    expect(svg.style.animationDelay).toBe('300ms');
+  });
+
+  it('draws the elbow run first and the diagonal right after it', () => {
+    const { container } = render(<ElbowConnector from={{ x: 5, y: 40 }} to={{ x: 50, y: 70 }} elbowX={30} draw delayMs={100} />);
+    const delays = [...container.querySelectorAll('svg')].map((svg) => svg.style.animationDelay);
+    expect(delays).toEqual(['100ms', '260ms']);
+  });
+});

@@ -211,12 +211,20 @@ describe('authored stylesheet opacity policy [A1]', () => {
     '[data-reveal-ready] [data-reveal]',
     '.glass-panel[data-glass-hidden]',
     'glass-panel',
+    // HUD entrances fade between 0 and 1 (never a translucent resting state): the utilities and their keyframes.
+    'hud-',
+    '@keyframes hud-',
   ];
 
   function ruleOf(declarationIndex: number): string {
     const open = authored.lastIndexOf('{', declarationIndex);
     const head = authored.slice(authored.lastIndexOf('}', open) + 1, open).replace(/\/\*[\s\S]*?\*\//g, '');
-    return head.replace(/@utility\s+/, '').trim();
+    const rule = head.replace(/@utility\s+/, '').trim();
+    // A keyframe step (`from`, `to`, `50%`) is reported as its enclosing `@keyframes name` rule.
+    if (/^(?:from|to|\d+%)$/.test(rule)) {
+      return authored.slice(authored.lastIndexOf('@keyframes', declarationIndex)).split('{')[0]!.trim();
+    }
+    return rule;
   }
 
   it('declares opacity only in the faint backdrop, the canvas fade, the reveal and the glass panel gate', () => {
