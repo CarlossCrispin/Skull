@@ -69,21 +69,3 @@ export const CANVAS_FADE_MS = 500;
 
 /** Viewports of scroll over which the cubes gather in the assembly range (mirrors the CSS height; DEFAULT-PENDING). */
 export const ASSEMBLY_RANGE_VIEWPORTS = 2;
-
-/**
- * Pointer follow (the skull turns toward the cursor). DEFAULT-PENDING until the visual
- * check; change them here without touching the math.
- */
-
-/** Yaw offset at the viewport edge (pointer fully right/left), in degrees. */
-export const LOOK_MAX_YAW_DEG = 12;
-/** Pitch offset at the viewport edge (pointer fully below/above), in degrees. */
-export const LOOK_MAX_PITCH_DEG = 8;
-/** Per-frame smoothing base of the look offset at the reference rate (slower than the progress smoothing). */
-export const LOOK_SMOOTH_BASE = 0.08;
-/** The smoothed look snaps to its target inside this distance (normalized units; lets the loop idle). */
-export const LOOK_SNAP = 1e-3;
-/** Device tilt (degrees) that maps to a full look deflection on touch devices. */
-export const LOOK_ORIENTATION_RANGE_DEG = 30;
-/** Beta (front-back tilt) of a phone held comfortably; pitch is measured from here. */
-export const LOOK_ORIENTATION_NEUTRAL_BETA_DEG = 45;
