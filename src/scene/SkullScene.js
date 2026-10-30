@@ -1,9 +1,11 @@
 import { Group, PerspectiveCamera, Scene } from 'three';
 import { initialAssembly, latticeOpacity, needsFrame, stepAssembly } from '../lib/motion/assembly.js';
 import { OPENING_DONE } from '../lib/motion/opening.js';
+import { LOOK_CENTERED, lookOffset, lookSettled, stepLook } from '../lib/motion/look.js';
 import { composePose, zoomStageZ } from '../lib/motion/pose.js';
 import { buildSkull } from './buildSkullMesh.js';
 import { LATTICE_ENABLED } from './constants.js';
+import { attachLookInput } from './lookInput.js';
 import { CAMERA_DISTANCE, capDpr, deriveFovDegrees, worldUnitsPerViewportHeight } from './framing.js';
 import { patchVoxelMaterial } from './material/voxelMaterial.js';
 import { createLightRig } from './lighting.js';
@@ -59,6 +61,10 @@ export class SkullScene {
   started = false;
   reduced;
   assembly = initialAssembly();
+  /** Pointer follow: smoothed look and its target (no React state; written by the input, read per frame). */
+  look = LOOK_CENTERED;
+  lookTarget = LOOK_CENTERED;
+  detachLook = null;
   lastFrameKey = null;
   presentRequested = false;
   hasPresented = false;
@@ -72,6 +78,7 @@ export class SkullScene {
       scheduler: rafScheduler,
       now: () => performance.now(),
       patchMaterial: patchVoxelMaterial,
+      attachLookInput,
       devicePixelRatio: () => window.devicePixelRatio || 1,
       ...opts.deps,
     };
@@ -120,6 +127,7 @@ export class SkullScene {
     }
     this.started = true;
     this.loop?.start();
+    this.syncLookInput();
   }
 
   /** Wakes the demand loop (scroll, resize); a no-op while paused, reduced or disposed. */
@@ -147,6 +155,29 @@ export class SkullScene {
     } else {
       this.loop.removePause(reason);
     }
+    this.syncLookInput();
+  }
+
+  /** Pointer follow input is live only while the scene can render (started, not paused, not reduced). */
+  syncLookInput() {
+    const live = this.started && !this.disposed && this.loop.pauseReasons.size === 0;
+    if (live && this.detachLook === null) {
+      this.detachLook = this.deps.attachLookInput((look) => this.setLook(look));
+    } else if (!live && this.detachLook !== null) {
+      this.detachLook();
+      this.detachLook = null;
+      // A stale pointer must not hold the skull turned: it eases back once rendering resumes.
+      this.lookTarget = LOOK_CENTERED;
+    }
+  }
+
+  /** Sets the look target (normalized pointer position) and wakes the loop; the frame smooths toward it. */
+  setLook(look) {
+    if (this.disposed) {
+      return;
+    }
+    this.lookTarget = look;
+    this.invalidate();
   }
 
   setReducedMotion(on) {
@@ -159,6 +190,7 @@ export class SkullScene {
     } else {
       this.loop.removePause('reduced-motion');
     }
+    this.syncLookInput();
   }
 
   resize(width, height) {
@@ -179,6 +211,8 @@ export class SkullScene {
       return;
     }
     this.disposed = true;
+    this.detachLook?.();
+    this.detachLook = null;
     this.loop?.dispose();
     const renderer = this.renderer;
     if (renderer === null) {
@@ -238,14 +272,21 @@ export class SkullScene {
     this.group.scale.setScalar(pose.scale);
   }
 
+  /** The look offset turns the whole stage (skull, scattered field and lattice) on top of the base pose. */
+  applyLook(look) {
+    const { yaw, pitch } = lookOffset(look);
+    this.stage.rotation.set(pitch, yaw, 0);
+  }
+
   /** One frame: advance the assembly, write uniforms, render. True when another frame is needed. */
   frame(dt) {
     const { target, opening = OPENING_DONE } = this.opts.readScrollFrame();
     const state = stepAssembly(this.assembly, target, dt, opening);
     this.assembly = state;
-    const more = needsFrame(state, target, opening);
+    this.look = stepLook(this.look, this.lookTarget, dt);
+    const more = needsFrame(state, target, opening) || !lookSettled(this.look, this.lookTarget);
     // A wake that would repeat the last presented frame renders and publishes nothing.
-    const key = `${state.progress}|${state.rotationT}|${opening.zoom}|${this.width}x${this.height}`;
+    const key = `${state.progress}|${state.rotationT}|${opening.zoom}|${this.look.x}|${this.look.y}|${this.width}x${this.height}`;
     if (key === this.lastFrameKey && !this.presentRequested) {
       return more;
     }
@@ -253,6 +294,7 @@ export class SkullScene {
     this.stage.position.z = zoomStageZ(opening.zoom);
     this.applyLattice(state.progress);
     this.applyPose(composePose(state.rotationT));
+    this.applyLook(this.look);
     this.presentRequested = false;
     this.lastFrameKey = key;
     return this.present() && more;
