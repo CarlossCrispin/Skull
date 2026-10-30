@@ -1,0 +1,219 @@
+@import "@fontsource/anton/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "tailwindcss" source(none);
+
+/* Only the document and app code are class sources; docs, specs and tests would emit bogus utilities. */
+@source "../../index.html";
+@source "../";
+@source not "../**/*.test.{ts,tsx}";
+@source not "../test";
+@source not "../lib/motion";
+@source not "../lib/glass";
+@source not "../components/glass/LiquidGlassFilter.tsx";
+@source not "../scene";
+@source not "./auditCss.ts";
+@source not "./contrast.ts";
+
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+
+  --color-bg: #F8F8F8;
+  --color-bg-alt: #EDEDED;
+  --color-ink: #0A0A0A;
+  --color-gray-700: #2B2B2C;
+  --color-gray-400: #888888;
+  --color-gray-200: #D8D8D8;
+  --color-accent: #8E4AF2;
+  --color-signal: #E2680A;
+
+  --font-display: "Anton", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --default-font-family: var(--font-mono);
+  --default-mono-font-family: var(--font-mono);
+
+  --text-body: 14px;
+  /* Fluid display size for the 720 px card, 28 px up to 88 px; capped at 5 svh so the poem fits one screen
+     on tablet and desktop (DEFAULT-PENDING visual check). */
+  --text-display: clamp(1.75rem, min(1rem + 7vw, 5svh), 5.5rem);
+  /* Fluid verse size, 13 px up to 20.8 px; capped at 2 svh for the one-screen fit (DEFAULT-PENDING visual check). */
+  --text-verse: clamp(0.8125rem, min(1rem + 0.5vw, 2svh), 1.3rem);
+  --text-verse--line-height: 1.45;
+  /* Display leading; 1.05 lets stacked accents clear the line above (P8). */
+  --leading-display: 1.05;
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+  }
+
+  /* Body text only: html keeps the browser default so 1rem stays 16px. */
+  body {
+    font-size: var(--text-body);
+  }
+
+  /* Allow flex/grid children to shrink and long words to wrap instead of overflowing. */
+  body,
+  body * {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Fixed full-viewport 3D layer. lvh does not change when the mobile URL bar moves, so the
+   host never resizes during scroll. A size container lets the poster size from the layer box. */
+@utility skull-layer {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  pointer-events: none;
+  overflow: hidden;
+  container-type: size;
+}
+
+/* Poster square: POSTER_EXTENT (1.7) x the stage side L (STAGE_SCALE 0.84 x the short container side) = 1.428. */
+@utility skull-poster-box {
+  width: calc(min(100cqw, 100cqh) * 1.428);
+  height: calc(min(100cqw, 100cqh) * 1.428);
+}
+
+/* Assembly range: one viewport plus ASSEMBLY_RANGE_VIEWPORTS (2) of scroll; vh is the fallback. */
+@utility assembly-range {
+  display: block;
+  height: calc((1 + 2) * 100vh);
+  height: calc((1 + 2) * 100svh);
+}
+
+/* Poster to canvas cross-fade: opacity only, 500 ms. */
+@utility skull-fade {
+  transition-property: opacity;
+  transition-duration: 500ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Poster at full opacity: in the assembly range on the static path. */
+@utility skull-full {
+  opacity: 1;
+}
+
+/* Poster as a faint fixed backdrop: reduced motion and every WebGL fallback (BACKDROP_OPACITY, DEFAULT-PENDING). */
+@utility skull-backdrop {
+  opacity: 0.3;
+}
+
+/* Glass card (WU19): the top-left and bottom-right corners are cut by GLASS_CHAMFER_PX (20 px);
+   the grey 1 px frame is an SVG polygon, not a border. No radius, no shadow. It fades in with the
+   opening gate (G6): the hidden attribute is set only outside reduced motion. clip-path creates
+   no containing block, so the fixed glass window inside stays viewport-fixed. */
+@utility glass-panel {
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: 700ms;
+  transition-timing-function: ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0ms;
+  }
+}
+
+.glass-panel[data-glass-hidden] {
+  opacity: 0;
+}
+
+/* Frost layer: the bg token at GLASS_FROST_PERCENT (72 %), the only translucent surface. Dense enough that
+   ink keeps AAA contrast over any cube colour behind the card (DEFAULT-PENDING visual check). */
+@utility glass-frost {
+  background-color: color-mix(in srgb, #F8F8F8 72%, transparent);
+}
+
+/* Live glass clip (WU16, WU18): fixed to the viewport, sized by script to the panel, inert. It only crops:
+   the refraction runs on the viewport-sized copy inside it, so the effect's edge bands land on the
+   viewport edges and the clip hides them. Nothing on the clip may transform, composite or paint. */
+@utility glass-window {
+  position: fixed;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The viewport-sized, opaque copy of the 3D layer and the only element carrying the SVG refraction reference
+   (the only one of its kind in the system). Script translates it so its pixels stay viewport-aligned. */
+@utility glass-copy {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  max-width: none;
+  filter: url(#liquid-glass-refraction);
+}
+
+/* Block B reveal: the hidden state exists only while the hook marks the section ready,
+   so text stays visible without JS, with reduced motion, or before the hook runs. */
+[data-reveal-ready] [data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition-property: opacity, transform;
+  transition-duration: 700ms;
+  transition-timing-function: ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal-ready] [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll indicator hide (G3): set by useHideOnFirstScroll on the reveal item. The first selector
+   out-ranks [data-revealed]; the plain one also hides it when the section never became ready. */
+[data-reveal-ready] [data-reveal][data-revealed][data-hidden],
+[data-reveal][data-hidden] {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 300ms;
+  transition-delay: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal-ready] [data-reveal][data-revealed][data-hidden],
+  [data-reveal][data-hidden] {
+    transition-duration: 0ms;
+  }
+}
+
+@keyframes indicator-bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+/* Scroll indicator bob: transform only, off under reduced motion. */
+@utility indicator-bob {
+  animation: indicator-bob 1.6s ease-in-out infinite alternate;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

@@ -1,0 +1,42 @@
+schema: spec-driven
+
+context: |
+  Project: skull (cinematic landing/experience; master prompt in writing-block.md).
+  Status: greenfield, tooling partially installed (TypeScript + Vitest confirmed; `npm test` and `npm run typecheck` exist).
+  Approved stack (React, Vite, Tailwind CSS, Three.js still to be installed in later work units).
+  Existing docs (Spanish, approved stage analyses): docs/01-discovery-visual.md,
+  docs/02-analisis-guion.md, docs/03-analisis-motionsites.md. Reference images in Explore/.
+  Runtime: Node v26.5.0 + npm. Git repository with work on feature branch feat/voxel-skull-landing.
+  Artifacts default to English unless mirroring the Spanish docs.
+
+strict_tdd: true
+
+projects: []  # No project markers discovered (empty project).
+
+testing:
+  runner: vitest
+  test_command: npm test
+  layers:
+    unit: true
+    integration: true
+    e2e: false
+  coverage: false
+  linter: false
+  type_checker: npm run typecheck
+  formatter: false
+
+rules:
+  proposal:
+    - Include rollback plan and affected docs/stages.
+  specs:
+    - Use Given/When/Then scenarios; RFC 2119 keywords.
+  design:
+    - Confirm test runner (Vitest) and workspace-wide test command.
+  tasks:
+    - Forecast 400-changed-line review budget; delivery_strategy ask-on-risk.
+  apply:
+    - Do not start oversized work without chained/stacked PR decision.
+  verify:
+    - Report actual command results; no invented evidence.
+  archive:
+    - Merge deltas into openspec/specs before archiving.
