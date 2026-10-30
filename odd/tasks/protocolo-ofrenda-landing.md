@@ -33,14 +33,15 @@ Only UNESCO was checked against a primary source (https://ich.unesco.org/en/RL/i
 - Advisory: about 400 authored changed lines per task (heuristic only).
 
 ## TDD
-Mode: strict (source: the user's global CLAUDE.md "Strict TDD Mode: enabled"). Runner: `npx vitest run` (Vitest 5). RED, then GREEN, then REFACTOR.
+Mode: strict (source: the user's global CLAUDE.md "Strict TDD Mode: enabled"). Runner: `npx vitest run` (Vitest 5). From TJS on the code is plain JS/JSX (no TypeScript), so the tests are the only type net. RED, then GREEN, then REFACTOR.
 
 ## Checks per task
-`npx vitest run`, `npm run typecheck`, and from T2 on `npm run build && npm run check:dist`.
+`npx vitest run`, and from T2 on `npm run build && npm run check:dist`.
 
 ## Tasks
 - [x] T1 Baseline green without the poem. Remove the calaverita wiring (`src/components/page/sections.ts` and the tests that reference the poem: PageShell, AssemblyRange, fontCoverage, stagger, useRevealGroup). Retarget the scroll anchor that depended on the poem signature to a neutral placeholder frame. Set the page title and meta to the new concept. Remove calaverita mentions from the glass constants comments and from the openspec specs page-shell and design-system (or mark them legacy). Everything goes green, then the initial commit lands on branch `feat/protocolo-ofrenda`.
 - [x] T2 HUD primitives with tests: `GridLines` (lines plus centered `+` marks), `ConnectorLine` (elbow SVG, non-scaling stroke), `HudCard` (chamfer, reusing ChamferFrame), `DataRow` (`//LABEL_ … VALUE`), `Ruler` (0-100), `Barcode`; entrance keyframes (expo-out) with stagger and reduced-motion off.
+- [x] TJS Migrate the whole codebase from TypeScript (.ts/.tsx) to plain JavaScript (.js/.jsx). This is the user's decision of 2026-10-30, taken after being told that typecheck is lost and the work is large. Strip types while preserving formatting and comments, rewrite import extensions, turn the configs (vite, vitest, eslint if present) into .js, remove tsconfig and typecheck, and update the tests that glob .ts/.tsx. Behavior stays the same, all tests stay green, and the build passes.
 - [ ] T3 Frame 00 hero (boot): nav with wordmark and numbered items 01-05 that link to the frames, H1, nodes and connectors pointing at the skull, bottom row with CTA and info card, coordinates, and a ruler bound to scroll progress.
 - [ ] T4 Cultural copy research: verify each fact for frames 01-05 (ofrenda levels, elements, cempasúchil role, papel picado, dates, UNESCO year) with sources, and record it in `docs/copy-sources.md`.
 - [ ] T5 Frames 01-04 with the verified copy, HUD layout and scroll reveal.
@@ -59,6 +60,7 @@ Forecast: well above 400 authored changed lines, so the feature needs slicing. D
 - 2026-10-30: scaffold copied from Skull, git init (main, no commits), remote added, `npm ci` done. Baseline does not compile yet (T1).
 - 2026-10-30: T1 done in commit fb52cc8 on `feat/protocolo-ofrenda`. `npx vitest run`: 72 files / 849 tests passed; `npm run typecheck`: clean; `npm run build && npm run check:dist`: ok (CSS audit clean, 204.4 KB gz JS).
 - 2026-10-30: T2 done in dae30d0 (static primitives: GridLines, ConnectorLine/ElbowConnector, HudCard, DataRow, Ruler, Barcode + `src/lib/hud/barcode.ts`) and 82de452 (hud-* entrance utilities, `hudDelay`, `animated`/`draw` props; the opacity policy in `auditCss.test.ts` now allows `hud-` rules and `@keyframes hud-`). Verification: `npx vitest run`: 81 files / 909 tests passed; `npm run typecheck`: clean; `npm run build && npm run check:dist`: ok (CSS audit clean, 204.4 KB gz JS). Authored lines: dae30d0 +572, 82de452 +355/-25 (both include tests).
+- 2026-10-30: TJS done in e65cb44 (one commit: scripts, configs and src are interdependent, so no green intermediate split). Types stripped with ts-blank-space 0.9.0 (TSX-aware) plus a script that turned commented interfaces/aliases into JSDoc @typedef blocks; tsconfigs, typecheck script, typescript and @types/node|react|react-dom|three removed (lockfile pruned by hand, registry offline). Verification: `npx vitest run`: 81 files / 909 tests passed (same as baseline); `npm run build && npm run check:dist`: ok (CSS audit clean); `npm run poster` leaves public/poster.png byte-identical; no .ts/.tsx left in src, scripts or root; vite dev serves /src/main.jsx with 200.
 
 ## Next step
 T3.
