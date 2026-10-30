@@ -52,17 +52,15 @@ describe('PageShell composition', () => {
     expect(main.lastElementChild).toBe(layer);
   });
 
-  it('registers the boot frame then the assembly range, and no Block A', () => {
+  it('registers the placeholder frame then the assembly range, and no Block A', () => {
     const { container } = mount();
     expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'assembly-range']);
     expect(container.querySelector('.skull-stage')).toBeNull();
   });
 
-  it('has interactive elements only in the boot frame: the nav links, the menu button and the CTA', () => {
-    const { container, sections } = mount();
-    const interactive = [...container.querySelectorAll(INTERACTIVE)];
-    expect(interactive.length).toBeGreaterThan(0);
-    expect(interactive.every((element) => sections[0]?.contains(element))).toBe(true);
+  it('has no interactive elements', () => {
+    const { container } = mount();
+    expect(container.querySelectorAll(INTERACTIVE)).toHaveLength(0);
   });
 
   it('has exactly one h1, inside the first section, and one image role after the text', () => {
@@ -136,7 +134,7 @@ describe('PageShell native scroll', () => {
 });
 
 describe('PageShell opening wiring', () => {
-  it('puts the empty assembly range right after the boot frame and the layer last', () => {
+  it('puts the empty assembly range right after the placeholder frame and the layer last', () => {
     const { sections, layer, main } = mount();
     expect(sections[1]?.hasAttribute('data-assembly-range')).toBe(true);
     expect(sections[1]?.textContent).toBe('');

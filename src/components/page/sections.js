@@ -1,4 +1,4 @@
-import { Frame00Boot } from '../frames/Frame00Boot.jsx';
+import { PlaceholderFrame } from '../frames/PlaceholderFrame.jsx';
 import { AssemblyRange } from './AssemblyRange.jsx';
 
 /**
@@ -9,6 +9,6 @@ import { AssemblyRange } from './AssemblyRange.jsx';
 
 /** Ordered page sections. A future section is added by appending one entry. */
 export const SECTIONS = [
-  { id: 'frame-00', Component: Frame00Boot },
+  { id: 'frame-00', Component: PlaceholderFrame },
   { id: 'assembly-range', Component: AssemblyRange },
 ];
