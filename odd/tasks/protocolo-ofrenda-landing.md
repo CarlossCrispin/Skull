@@ -9,7 +9,7 @@ Skull2.0 starts from the Skull codebase without the calaverita poem. It leans fu
 ## Approved structure (user, 2026-10-30)
 | Frame | Title | HUD data |
 |---|---|---|
-| 00 | Boot: the skull assembles and holds; it explodes on the first scroll; the HUD reveals at zoom end | `//SYS_ MICTLAN.OS`, `19.4326°N 99.1332°W`, a 0-100 ruler bound to scroll | 
+| 00 | Boot: the skull assembles and holds; it explodes on the first scroll; the HUD reveals at zoom end | `//SYS_ MICTLAN.OS`, `19.4326°N 99.1332°W`, a 0-100 ruler bound to scroll; four subtle annotation cards on the assembled skull (md+): coordinates, date, live Mexico City time, operator |
 | 01 | CEMPASÚCHIL | `//FUNCIÓN_ GUÍA DE ALMAS`, orange accent |
 | 02 | OFRENDA | `//NIVELES_ 2 · 3 · 7`, elements (agua, sal, pan, copal, velas) |
 | 03 | PAPEL PICADO | `//ELEMENTO_ AIRE`, cut-paper pattern texture |
