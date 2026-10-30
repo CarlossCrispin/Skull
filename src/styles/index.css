@@ -5,14 +5,14 @@
 /* Only the document and app code are class sources; docs, specs and tests would emit bogus utilities. */
 @source "../../index.html";
 @source "../";
-@source not "../**/*.test.{ts,tsx}";
+@source not "../**/*.test.{js,jsx}";
 @source not "../test";
 @source not "../lib/motion";
 @source not "../lib/glass";
-@source not "../components/glass/LiquidGlassFilter.tsx";
+@source not "../components/glass/LiquidGlassFilter.jsx";
 @source not "../scene";
-@source not "./auditCss.ts";
-@source not "./contrast.ts";
+@source not "./auditCss.js";
+@source not "./contrast.js";
 
 @theme {
   --color-*: initial;

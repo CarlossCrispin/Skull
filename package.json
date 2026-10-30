@@ -7,13 +7,12 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "poster": "node scripts/build-poster.ts",
-    "check:dist": "node scripts/check-dist.ts",
+    "poster": "node scripts/build-poster.js",
+    "check:dist": "node scripts/check-dist.js",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit"
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@fontsource/anton": "5.3.0",
@@ -22,14 +21,9 @@
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
-    "@types/node": "22.20.5",
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "@types/three": "0.186.0",
     "@vitejs/plugin-react": "6.1.2",
     "jsdom": "30.1.3",
     "tailwindcss": "4.3.3",
-    "typescript": "7.0.2",
     "vite": "8.3.5",
     "vitest": "5.0.5"
   },
