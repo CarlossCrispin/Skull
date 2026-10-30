@@ -80,7 +80,7 @@ export function FrameNav({ revealGate, reducedMotion }) {
           return (
             <li key={item.href} {...props}>
               <a href={item.href} className="label-mono inline-flex gap-[3px] text-ink">
-                <span className="text-signal">{item.number}</span>
+                <span className="text-ink">{item.number}</span>
                 {' '}
                 <span>{item.label}</span>
               </a>
@@ -125,7 +125,7 @@ export function FrameNav({ revealGate, reducedMotion }) {
                   onClick={() => setMenuOpen(false)}
                   className="inline-flex gap-[3px] font-display text-4xl uppercase leading-display text-ink"
                 >
-                  <span className="text-signal">{item.number}</span>
+                  <span className="text-ink">{item.number}</span>
                   {' '}
                   <span>{item.label}</span>
                 </a>

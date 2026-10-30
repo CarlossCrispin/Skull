@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { FrameNav, NAV_ITEMS } from './FrameNav.jsx';
+import { MIN_TEXT_CONTRAST, contrastRatio } from '../../styles/contrast.js';
+import { COLORS } from '../../styles/tokens.js';
 
 const GATE_OPEN = { revealGate: true, reducedMotion: false };
 
@@ -31,13 +33,19 @@ describe('FrameNav content', () => {
     expect(links[0]).toHaveAccessibleName('01. CEMPASÚCHIL');
   });
 
-  it('shows the numbers in the signal accent with a 3px gap and 40px between items, from lg', () => {
+  it('shows the numbers in ink (signal fails AA on the light bg) with a 3px gap and 40px between items, from lg', () => {
     mount();
     const list = screen.getByRole('list');
     expect(list).toHaveClass('hidden', 'lg:flex', 'gap-10');
     const link = within(list).getAllByRole('link')[0];
     expect(link).toHaveClass('gap-[3px]');
-    expect(link.firstElementChild).toHaveClass('text-signal');
+    expect(link.firstElementChild).toHaveClass('text-ink');
+    expect(link.firstElementChild).not.toHaveClass('text-signal');
+  });
+
+  it('keeps nav number contrast at AA: ink passes on the page background, signal does not', () => {
+    expect(contrastRatio(COLORS.ink, COLORS.bg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+    expect(contrastRatio(COLORS.signal, COLORS.bg)).toBeLessThan(MIN_TEXT_CONTRAST);
   });
 
   it('shows the system tag and a status chip in the right group, from lg', () => {
