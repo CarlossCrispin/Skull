@@ -34,7 +34,7 @@ Mode: strict (source: the user's global CLAUDE.md "Strict TDD Mode: enabled"). R
 `npx vitest run`, `npm run typecheck`, and from T2 on `npm run build && npm run check:dist`.
 
 ## Tasks
-- [ ] T1 Baseline green without the poem. Remove the calaverita wiring (`src/components/page/sections.ts` and the tests that reference the poem: PageShell, AssemblyRange, fontCoverage, stagger, useRevealGroup). Retarget the scroll anchor that depended on the poem signature to a neutral placeholder frame. Set the page title and meta to the new concept. Remove calaverita mentions from the glass constants comments and from the openspec specs page-shell and design-system (or mark them legacy). Everything goes green, then the initial commit lands on branch `feat/protocolo-ofrenda`.
+- [x] T1 Baseline green without the poem. Remove the calaverita wiring (`src/components/page/sections.ts` and the tests that reference the poem: PageShell, AssemblyRange, fontCoverage, stagger, useRevealGroup). Retarget the scroll anchor that depended on the poem signature to a neutral placeholder frame. Set the page title and meta to the new concept. Remove calaverita mentions from the glass constants comments and from the openspec specs page-shell and design-system (or mark them legacy). Everything goes green, then the initial commit lands on branch `feat/protocolo-ofrenda`.
 - [ ] T2 HUD primitives with tests: `GridLines` (lines plus centered `+` marks), `ConnectorLine` (elbow SVG, non-scaling stroke), `HudCard` (chamfer, reusing ChamferFrame), `DataRow` (`//LABEL_ … VALUE`), `Ruler` (0-100), `Barcode`; entrance keyframes (expo-out) with stagger and reduced-motion off.
 - [ ] T3 Frame 00 hero (boot): nav with wordmark and numbered items 01-05 that link to the frames, H1, nodes and connectors pointing at the skull, bottom row with CTA and info card, coordinates, and a ruler bound to scroll progress.
 - [ ] T4 Cultural copy research: verify each fact for frames 01-05 (ofrenda levels, elements, cempasúchil role, papel picado, dates, UNESCO year) with sources, and record it in `docs/copy-sources.md`.
@@ -48,6 +48,7 @@ Forecast: well above 400 authored changed lines, so the feature needs slicing. C
 
 ## Progress
 - 2026-10-30: scaffold copied from Skull, git init (main, no commits), remote added, `npm ci` done. Baseline does not compile yet (T1).
+- 2026-10-30: T1 done in commit fb52cc8 on `feat/protocolo-ofrenda`. `npx vitest run`: 72 files / 849 tests passed; `npm run typecheck`: clean; `npm run build && npm run check:dist`: ok (CSS audit clean, 204.4 KB gz JS).
 
 ## Next step
-T1.
+T2.
