@@ -38,6 +38,12 @@ describe('DataRow', () => {
     expect(rule.outerHTML).not.toMatch(/rounded/);
   });
 
+  it('never wraps the value mid-token and lets the label shrink first', () => {
+    render(<DataRow label="SYS" value="MICTLAN.OS" />);
+    expect(screen.getByText('MICTLAN.OS')).toHaveClass('whitespace-nowrap', 'shrink-0');
+    expect(screen.getByText('SYS').closest('[data-datarow-label]')).toHaveClass('min-w-0', 'truncate');
+  });
+
   it('gives each row its own accessible name', () => {
     render(
       <>

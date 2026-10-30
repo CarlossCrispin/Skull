@@ -40,6 +40,12 @@ describe('Frame00Boot structure', () => {
     expect(screen.getByText('Día de Muertos · sistema de memoria')).toBeInTheDocument();
   });
 
+  it('keeps the title on one line from md, capped by the viewport width', () => {
+    const { container } = mount();
+    const h1 = container.querySelector('h1');
+    expect(h1).toHaveClass('md:whitespace-nowrap', 'md:text-[clamp(3rem,9.5vw,8rem)]');
+  });
+
   it('aligns the title block to the HUD gutter', () => {
     const { container } = mount();
     expect(container.querySelector('h1').parentElement).toHaveClass('px-5', 'md:px-[35px]');
@@ -79,6 +85,20 @@ describe('Frame00Boot structure', () => {
     const ruler = container.querySelector('[data-ruler-indicator]');
     expect(ruler.style.top).toBe('40%');
     expect(container.querySelectorAll('[data-ruler-tick]')).toHaveLength(21);
+  });
+
+  it('anchors the ruler on the right edge inside the gutter, in the node band, hidden below md', () => {
+    const { container } = mount();
+    const wrapper = container.querySelector('[data-ruler-indicator]').closest('[data-hud-ruler]');
+    expect(wrapper).toHaveClass('hidden', 'md:block', 'right-5', 'md:right-[35px]', 'top-[15%]', 'h-[30%]');
+    expect(wrapper.className).not.toMatch(/\bleft-/);
+  });
+
+  it('keeps every node in the upper band, clear of the title block', () => {
+    const { container } = mount();
+    for (const node of container.querySelectorAll('[data-hud-node]')) {
+      expect(node.style.top).toBe('15%');
+    }
   });
 
   it('keeps every decorative svg and the ruler hidden from assistive tech', () => {

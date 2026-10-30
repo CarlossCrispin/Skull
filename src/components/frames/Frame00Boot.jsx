@@ -1,6 +1,6 @@
 import { hudEntrance } from '../../lib/motion/hudEntrance.js';
 import { useScrollProgress } from '../../lib/scroll/useScrollProgress.js';
-import { HUD_GUTTER_CLASSES, HUD_GUTTER_LEFT_CLASSES } from '../../styles/layout.js';
+import { HUD_GUTTER_CLASSES, HUD_GUTTER_RIGHT_CLASSES } from '../../styles/layout.js';
 import { Barcode } from '../hud/Barcode.jsx';
 import { ElbowConnector } from '../hud/ConnectorLine.jsx';
 import { DataRow } from '../hud/DataRow.jsx';
@@ -26,42 +26,41 @@ const LABEL_TO_CONNECTOR_MS = 100;
 const LABEL_TO_BOX_MS = 500;
 
 const GRID_VERTICAL = ['25%', '75%'];
+const NODE_TOP = '15%';
 const GRID_HORIZONTAL = ['25%', '75%'];
 
 /**
- * The three nodes around the skull. Positions are percents of the frame; `from` is the connector start
- * at the box edge, `to` the point it aims at near the skull. Copy is limited to the verified list.
+ * The three nodes above the skull, in one row inside the upper band (15% down to about 40% of the frame),
+ * so they never meet the title block anchored at the bottom. Positions are percents of the frame; `from` is the
+ * connector start at the box edge, `to` the point it aims at near the skull. Copy is limited to the verified list.
  */
 const NODES = [
   {
     id: 'mictlan',
     label: '[ MICTLÁN ]',
     body: 'Inframundo mexica de nueve niveles.',
-    edge: 'left-[12%]',
-    top: 20,
-    from: { x: 33, y: 26 },
-    elbowX: 38,
-    to: { x: 45, y: 38 },
-  },
-  {
-    id: 'unesco',
-    label: '[ UNESCO_2008 ]',
-    body: 'Patrimonio cultural inmaterial de la humanidad.',
-    edge: 'right-[12%]',
-    top: 20,
-    from: { x: 67, y: 26 },
-    elbowX: 62,
-    to: { x: 55, y: 38 },
+    edge: 'left-[8%]',
+    from: { x: 31, y: 24 },
+    elbowX: 37,
+    to: { x: 46, y: 36 },
   },
   {
     id: 'coord',
     label: '[ COORD_ ]',
     body: '19.4326° N · 99.1332° O',
-    edge: 'right-[12%]',
-    top: 38,
-    from: { x: 67, y: 43 },
-    elbowX: 62,
-    to: { x: 56, y: 48 },
+    edge: 'left-[39%]',
+    from: { x: 50, y: 32 },
+    elbowX: 50,
+    to: { x: 50, y: 38 },
+  },
+  {
+    id: 'unesco',
+    label: '[ UNESCO_2008 ]',
+    body: 'Patrimonio cultural inmaterial de la humanidad.',
+    edge: 'right-[13%]',
+    from: { x: 64, y: 24 },
+    elbowX: 60,
+    to: { x: 54, y: 36 },
   },
 ];
 
@@ -80,7 +79,7 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
   const entrance = (utility, delayMs) => hudEntrance(utility, gate, delayMs);
   const title = entrance('hud-fade-up', TITLE_MS);
   const subline = entrance('hud-fade-up', SUBLINE_MS);
-  const ruler = entrance('hud-slide-right', RULER_MS);
+  const ruler = entrance('hud-slide-left', RULER_MS);
   const cta = entrance('hud-fade-up', CTA_MS);
   const infoCard = entrance('hud-fade-up', INFO_CARD_MS);
 
@@ -108,7 +107,7 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
       <div className={`mt-auto pb-8 md:pb-12 ${HUD_GUTTER_CLASSES}`}>
         <h1
           style={title.style}
-          className={`font-display text-[clamp(3rem,13vw,8rem)] uppercase leading-display text-ink ${title.className}`}
+          className={`font-display text-[clamp(3rem,13vw,8rem)] uppercase md:whitespace-nowrap md:text-[clamp(3rem,9.5vw,8rem)] leading-display text-ink ${title.className}`}
         >
           Protocolo Ofrenda
         </h1>
@@ -139,7 +138,7 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
               key={node.id}
               data-hud-node=""
               data-connector-ms={labelMs + LABEL_TO_CONNECTOR_MS}
-              style={{ top: `${node.top}%` }}
+              style={{ top: NODE_TOP }}
               className={`absolute w-[24%] min-w-44 max-w-64 ${node.edge}`}
             >
               <span
@@ -161,8 +160,9 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
 
       <div
         aria-hidden="true"
+        data-hud-ruler=""
         style={ruler.style}
-        className={`absolute top-[22%] h-[40%] w-10 ${HUD_GUTTER_LEFT_CLASSES} ${ruler.className}`}
+        className={`absolute top-[15%] hidden h-[30%] w-10 md:block ${HUD_GUTTER_RIGHT_CLASSES} ${ruler.className}`}
       >
         <Ruler progress={progress} className="h-full" />
       </div>
@@ -181,7 +181,7 @@ export function Frame00Boot({ reducedMotion, revealGate }) {
         <div
           data-info-card=""
           style={infoCard.style}
-          className={`mt-6 hidden w-72 sm:block ${infoCard.className}`}
+          className={`mt-6 hidden w-96 max-w-full sm:block ${infoCard.className}`}
         >
           <HudCard label="//FECHA_ 01–02.NOV" tone="signal">
             <p className="text-body text-ink">De fines de octubre a inicios de noviembre, la memoria se enciende.</p>
