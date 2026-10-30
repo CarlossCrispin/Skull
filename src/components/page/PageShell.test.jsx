@@ -154,6 +154,20 @@ describe('PageShell opening wiring', () => {
     expect(seen.at(-1)).toBe(true);
   });
 
+  it('opens the gate at zoom end, over the assembled skull, not after an explosion', () => {
+    vi.useFakeTimers();
+    const seen = [];
+    const probe = { id: 'probe', Component: ({ revealGate }) => { seen.push(revealGate); return null; } };
+    hook.status = 'ready';
+    mount(false, [probe]);
+    act(() => void vi.advanceTimersByTime(1599));
+    expect(seen.at(-1)).toBe(false);
+    act(() => void vi.advanceTimersByTime(1));
+    expect(seen.at(-1)).toBe(true);
+    act(() => void vi.advanceTimersByTime(60_000));
+    expect(hook.calls.at(-1).readScrollFrame().opening?.phase).toBe('hold');
+  });
+
   it('opens the gate at once under reduced motion', () => {
     const seen = [];
     const probe = { id: 'probe', Component: ({ revealGate }) => { seen.push(revealGate); return null; } };

@@ -4,7 +4,7 @@ import { HUD_GUTTER_CLASSES } from '../../styles/layout.js';
 
 /**
  * @typedef {object} FrameNavProps
- * @property {boolean} revealGate - True once the skull opening is done; the entrance waits for it.
+ * @property {boolean} revealGate - True once the skull has zoomed in and holds assembled (or the opening is skipped); the entrance waits for it.
  * @property {boolean} reducedMotion
  */
 

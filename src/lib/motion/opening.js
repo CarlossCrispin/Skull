@@ -1,13 +1,11 @@
 import {
   OPENING_EXPLODE_S,
-  OPENING_HOLD_S,
   OPENING_MAX_WAIT_S,
   OPENING_ZOOM_S,
 } from './constants.js';
 import { clamp, easeOutCubic } from './easing.js';
 
 const ZOOM_MS = OPENING_ZOOM_S * 1000;
-const HOLD_MS = OPENING_HOLD_S * 1000;
 const EXPLODE_MS = OPENING_EXPLODE_S * 1000;
 const MAX_WAIT_MS = OPENING_MAX_WAIT_S * 1000;
 
@@ -55,9 +53,6 @@ export function openingAdvance(state, nowMs) {
   if (next.phase === 'zoom' && nowMs >= zoomStart + ZOOM_MS) {
     next = { ...next, phase: 'hold' };
   }
-  if (next.phase === 'hold' && nowMs >= zoomStart + ZOOM_MS + HOLD_MS) {
-    next = { ...next, phase: 'exploding', explodeStartMs: zoomStart + ZOOM_MS + HOLD_MS };
-  }
   if (next.phase === 'exploding' && nowMs >= (next.explodeStartMs ?? nowMs) + EXPLODE_MS) {
     next = { ...next, phase: 'done' };
   }
@@ -78,7 +73,10 @@ export function openingSceneFailed(state) {
   return state.phase === 'exploding' ? { ...state, phase: 'done' } : state;
 }
 
-/** A scroll while waiting skips; during the zoom or hold it explodes now (the zoom keeps running). */
+/**
+ * A scroll while waiting skips; during the zoom or the (indefinite) hold it explodes now, and
+ * the zoom keeps running. This is the only way out of the hold.
+ */
 export function openingScroll(state, nowMs) {
   const current = openingAdvance(state, nowMs);
   if (current.phase === 'waiting') {
@@ -90,7 +88,7 @@ export function openingScroll(state, nowMs) {
   return current;
 }
 
-/** Timestamp of the next transition, or null once done. */
+/** Timestamp of the next timed transition, or null in the hold (scroll-driven) and once done. */
 export function openingDeadline(state) {
   const zoomStart = state.zoomStartMs ?? state.mountMs;
   switch (state.phase) {
@@ -99,7 +97,7 @@ export function openingDeadline(state) {
     case 'zoom':
       return zoomStart + ZOOM_MS;
     case 'hold':
-      return zoomStart + ZOOM_MS + HOLD_MS;
+      return null;
     case 'exploding':
       return (state.explodeStartMs ?? state.mountMs) + EXPLODE_MS;
     case 'done':

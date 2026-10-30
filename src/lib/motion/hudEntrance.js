@@ -2,7 +2,7 @@ import { hudDelay } from './hudDelay.js';
 
 /**
  * @typedef {object} HudGate
- * @property {boolean} revealGate - True once the skull opening is done.
+ * @property {boolean} revealGate - True once the skull zoom has ended (assembled hold) or the opening is skipped.
  * @property {boolean} reducedMotion
  */
 

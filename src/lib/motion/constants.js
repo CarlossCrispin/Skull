@@ -51,15 +51,13 @@ export const ASSEMBLED_EXIT = 0.995;
 export const LATTICE_FADE_FROM = 0.8;
 
 /**
- * Opening sequence (spec: skull-motion). Explode is APPROVED 2026-10-27; the zoom, hold,
+ * Opening sequence (spec: skull-motion). Explode is APPROVED 2026-10-27; the zoom,
  * start distance and maximum wait are DEFAULT-PENDING a visual check. The names avoid
  * `INTRO_*` on purpose: there is no intro sweep (see pose tests).
  */
 
 /** Zoom entrance: the skull flies in from behind the viewer (ease-out), counted from ready. */
 export const OPENING_ZOOM_S = 1.6;
-/** Assembled hold counted from the end of the zoom, before the explosion. */
-export const OPENING_HOLD_S = 0.8;
 /** World z of the stage at the zoom start; the camera is at 120, so the skull starts behind it. */
 export const OPENING_ZOOM_START_Z = 150;
 /** Duration of the time-driven explosion (ease-out). */
