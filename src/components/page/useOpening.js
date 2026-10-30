@@ -26,7 +26,7 @@ import {
  * Owns the opening on the wall clock (design Decisions 20 and 31): the pure state lives in a
  * ref, the phase is mirrored into React state (re-render only on a phase change), one timer
  * is armed to the next deadline and a passive once `scroll` listener exists while waiting,
- * zooming and holding (a scroll skips the wait or starts the explosion at once; the hold has no timer).
+ * zooming and holding (a scroll skips the wait or starts the explosion at once).
  */
 export function useOpening({ reducedMotion, now }) {
   const clockRef = useRef(now ?? (() => performance.now()));

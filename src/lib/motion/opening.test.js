@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CANVAS_FADE_MS,
   OPENING_EXPLODE_S,
+  OPENING_HOLD_S,
   OPENING_MAX_WAIT_S,
   OPENING_ZOOM_S,
   OPENING_ZOOM_START_Z,
@@ -19,14 +20,16 @@ import {
 } from './opening.js';
 
 const ZOOM_MS = OPENING_ZOOM_S * 1000;
+const HOLD_MS = OPENING_HOLD_S * 1000;
 const EXPLODE_MS = OPENING_EXPLODE_S * 1000;
 const MAX_WAIT_MS = OPENING_MAX_WAIT_S * 1000;
 const T0 = 10_000;
 const READY = 300;
 
 describe('opening constants', () => {
-  it('uses the zoom, explode and wait timings', () => {
+  it('uses the zoom, hold, explode and wait timings', () => {
     expect(OPENING_ZOOM_S).toBe(1.6);
+    expect(OPENING_HOLD_S).toBe(0.8);
     expect(OPENING_EXPLODE_S).toBe(1.2);
     expect(OPENING_MAX_WAIT_S).toBe(4);
     expect(OPENING_ZOOM_START_Z).toBe(150);
@@ -74,7 +77,7 @@ describe('openingSceneReady', () => {
   });
 });
 
-describe('zoom, then an indefinite hold (ready at 0.3 s)', () => {
+describe('zoom, hold, explode timeline (ready at 0.3 s)', () => {
   const state = openingSceneReady(openingInitial(T0, true), T0 + READY);
   const at = (ms) => openingSample(state, T0 + ms);
 
@@ -89,35 +92,32 @@ describe('zoom, then an indefinite hold (ready at 0.3 s)', () => {
     expect(at(READY)).toEqual({ phase: 'zoom', zoom: 0, explode: 0 });
   });
 
-  it('enters the hold at zoom end', () => {
+  it('holds at zoom 1 from +1.6 s until +2.4 s', () => {
     expect(openingAdvance(state, T0 + READY + ZOOM_MS - 1).phase).toBe('zoom');
     expect(openingAdvance(state, T0 + READY + ZOOM_MS).phase).toBe('hold');
     expect(at(2300)).toEqual({ phase: 'hold', zoom: 1, explode: 0 });
+    expect(openingAdvance(state, T0 + READY + ZOOM_MS + HOLD_MS - 1).phase).toBe('hold');
   });
 
-  it('never explodes on its own: still assembled a minute later', () => {
-    const held = openingAdvance(state, T0 + 60_000);
-    expect(held.phase).toBe('hold');
-    expect(held.explodeStartMs).toBeNull();
-    expect(at(60_000)).toEqual({ phase: 'hold', zoom: 1, explode: 0 });
+  it('starts the explosion at exactly zoom end + hold, even when sampled later', () => {
+    const exploding = openingAdvance(state, T0 + READY + ZOOM_MS + HOLD_MS + 600);
+    expect(exploding.phase).toBe('exploding');
+    expect(exploding.explodeStartMs).toBe(T0 + READY + ZOOM_MS + HOLD_MS);
   });
-});
 
-describe('explosion after a scroll in the hold', () => {
-  const held = openingAdvance(openingSceneReady(openingInitial(T0, true), T0 + READY), T0 + 5000);
-  const exploding = openingScroll(held, T0 + 5000);
-
-  it('eases the explosion out from the scroll instant', () => {
-    const s = openingSample(exploding, T0 + 5000 + EXPLODE_MS / 2);
+  it('eases the explosion out: half way at 3.3 s', () => {
+    const s = at(3300);
     expect(s.phase).toBe('exploding');
     expect(s.zoom).toBe(1);
     expect(s.explode).toBeCloseTo(easeOutCubic(0.5), 12);
   });
 
-  it('is done after the explosion and stays done', () => {
-    expect(openingSample(exploding, T0 + 5000 + EXPLODE_MS)).toEqual(OPENING_DONE);
-    expect(openingSample(exploding, T0 + 60_000)).toEqual(OPENING_DONE);
-    expect(openingAdvance(exploding, T0 + 5000 + EXPLODE_MS - 1).phase).toBe('exploding');
+  it('is done at 3.9 s and stays done', () => {
+    expect(at(3900)).toEqual(OPENING_DONE);
+    expect(at(60_000)).toEqual(OPENING_DONE);
+    expect(openingAdvance(state, T0 + READY + ZOOM_MS + HOLD_MS + EXPLODE_MS - 1).phase).toBe(
+      'exploding',
+    );
   });
 });
 
@@ -215,9 +215,9 @@ describe('openingDeadline', () => {
     const zoom = openingSceneReady(waiting, T0 + READY);
     expect(openingDeadline(zoom)).toBe(T0 + READY + ZOOM_MS);
     const hold = openingAdvance(zoom, T0 + READY + ZOOM_MS);
-    expect(openingDeadline(hold)).toBeNull();
-    const exploding = openingScroll(hold, T0 + 5000);
-    expect(openingDeadline(exploding)).toBe(T0 + 5000 + EXPLODE_MS);
+    expect(openingDeadline(hold)).toBe(T0 + READY + ZOOM_MS + HOLD_MS);
+    const exploding = openingAdvance(hold, T0 + READY + ZOOM_MS + HOLD_MS);
+    expect(openingDeadline(exploding)).toBe(T0 + READY + ZOOM_MS + HOLD_MS + EXPLODE_MS);
     expect(openingDeadline(openingAdvance(exploding, T0 + 60_000))).toBeNull();
   });
 });

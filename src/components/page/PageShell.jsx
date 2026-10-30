@@ -23,8 +23,7 @@ import { SECTIONS } from './sections.js';
 export function PageShell({ sections = SECTIONS }) {
   const reducedMotion = usePrefersReducedMotion();
   const opening = useOpening({ reducedMotion });
-  // The HUD shows over the assembled skull: the gate opens at zoom end (hold), not after the explosion.
-  const revealGate = opening.phase !== 'waiting' && opening.phase !== 'zoom';
+  const revealGate = opening.phase === 'done';
   const [mirror] = useState(createFrameMirror);
   const [sceneStatus, setSceneStatus] = useState('loading');
   const { reportStatus } = opening;

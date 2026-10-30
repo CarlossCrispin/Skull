@@ -59,7 +59,7 @@ describe('useOpening phases', () => {
     expect(renders()).toBe(before + 1);
   });
 
-  it('moves waiting to zoom on ready, holds at zoom end and explodes only on a scroll', () => {
+  it('moves waiting to zoom on ready, then hold, exploding and done at each deadline', () => {
     const { result } = mount();
     tick(100);
     act(() => result.current.reportStatus('ready'));
@@ -68,10 +68,9 @@ describe('useOpening phases', () => {
     expect(result.current.phase).toBe('zoom');
     tick(1);
     expect(result.current.phase).toBe('hold');
-    expect(vi.getTimerCount()).toBe(0);
-    tick(60_000);
+    tick(799);
     expect(result.current.phase).toBe('hold');
-    scroll();
+    tick(1);
     expect(result.current.phase).toBe('exploding');
     tick(1199);
     expect(result.current.phase).toBe('exploding');
@@ -124,7 +123,6 @@ describe('useOpening phases', () => {
     const { result } = mount();
     act(() => result.current.reportStatus('ready'));
     tick(2400);
-    scroll();
     expect(result.current.phase).toBe('exploding');
     act(() => result.current.reportStatus('lost'));
     expect(result.current.phase).toBe('done');
@@ -153,10 +151,7 @@ describe('useOpening scroll', () => {
     tick(1600);
     expect(result.current.phase).toBe('hold');
     expect(live()).toBe(1);
-    tick(5000);
-    expect(result.current.phase).toBe('hold');
-    expect(live()).toBe(1);
-    scroll();
+    tick(800);
     expect(result.current.phase).toBe('exploding');
     expect(live()).toBe(0);
   });
@@ -218,9 +213,6 @@ describe('useOpening sampling and lifecycle', () => {
     const zoom = result.current.sampleOpening(800);
     expect(zoom).toEqual({ phase: 'zoom', zoom: easeOutCubic(0.5), explode: 0 });
     expect(result.current.sampleOpening(2000)).toEqual({ phase: 'hold', zoom: 1, explode: 0 });
-    expect(result.current.sampleOpening(60_000)).toEqual({ phase: 'hold', zoom: 1, explode: 0 });
-    tick(2400);
-    scroll();
     const sample = result.current.sampleOpening(2400 + 600);
     expect(sample.phase).toBe('exploding');
     expect(sample.zoom).toBe(1);
@@ -255,6 +247,6 @@ describe('useOpening sampling and lifecycle', () => {
     const adds = add.mock.calls.filter(([type]) => type === 'scroll').length;
     const removes = remove.mock.calls.filter(([type]) => type === 'scroll').length;
     expect(adds - removes).toBe(1);
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(1);
   });
 });
