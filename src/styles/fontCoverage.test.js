@@ -52,14 +52,6 @@ const FRAME_00_COPY = [
   'INICIAR PROTOCOLO',
   '//FECHA_ 01–02.NOV',
   'De fines de octubre a inicios de noviembre, la memoria se enciende.',
-  '//COORD_',
-  '//DÍA_DE_MUERTOS',
-  '01–02.NOV',
-  '//SYS_TIME',
-  '01.11.2026 · 12:30:05',
-  '--.--.---- · --:--:--',
-  '//OPERADOR_',
-  'CarlosCrispin',
 ];
 
 const COPY = [TITLE.toUpperCase(), TITLE, ...FRAME_00_COPY, ...FRAME_00_COPY.map((line) => line.toUpperCase())].join('\n');

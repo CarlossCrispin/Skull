@@ -57,12 +57,3 @@ describe('HudCard', () => {
     expect(contrastRatio(COLORS.ink, COLORS.signal)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
   });
 });
-
-describe('HudCard padding', () => {
-  it('lets the caller replace the content padding', () => {
-    render(<HudCard padding="p-2">Offering</HudCard>);
-    const body = screen.getByText('Offering');
-    expect(body).toHaveClass('p-2');
-    expect(body).not.toHaveClass('p-5');
-  });
-});

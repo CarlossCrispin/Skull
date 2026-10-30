@@ -6,7 +6,6 @@ import { ElbowConnector } from '../hud/ConnectorLine.jsx';
 import { DataRow } from '../hud/DataRow.jsx';
 import { GridLines } from '../hud/GridLines.jsx';
 import { HudCard } from '../hud/HudCard.jsx';
-import { SkullAnnotations } from '../hud/SkullAnnotations.jsx';
 import { Ruler } from '../hud/Ruler.jsx';
 import { FrameNav } from '../nav/FrameNav.jsx';
 
@@ -72,7 +71,7 @@ const NODES = [
  *
  * @param {SectionProps} props
  */
-export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
+export function Frame00Boot({ reducedMotion, revealGate }) {
   const progress = useScrollProgress();
   const gate = { revealGate, reducedMotion };
   const animate = revealGate && !reducedMotion;
@@ -105,7 +104,7 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
         />
       </div>
 
-      <div data-hud-avoid="" className={`mt-auto pb-8 md:pb-12 ${HUD_GUTTER_CLASSES}`}>
+      <div className={`mt-auto pb-8 md:pb-12 ${HUD_GUTTER_CLASSES}`}>
         <h1
           style={title.style}
           className={`font-display text-[clamp(3rem,13vw,8rem)] uppercase md:whitespace-nowrap md:text-[clamp(3rem,9.5vw,8rem)] leading-display text-ink ${title.className}`}
@@ -116,8 +115,6 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
           Día de Muertos · sistema de memoria
         </p>
       </div>
-
-      <SkullAnnotations reducedMotion={reducedMotion} revealGate={revealGate} skullAssembled={skullAssembled} />
 
       <div data-hud-nodes="" className="hidden md:block">
         <div data-hud-decor="" aria-hidden="true" className={decorClass}>
@@ -140,7 +137,6 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
             <div
               key={node.id}
               data-hud-node=""
-              data-hud-avoid=""
               data-connector-ms={labelMs + LABEL_TO_CONNECTOR_MS}
               style={{ top: NODE_TOP }}
               className={`absolute w-[24%] min-w-44 max-w-64 ${node.edge}`}
@@ -165,7 +161,6 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
       <div
         aria-hidden="true"
         data-hud-ruler=""
-        data-hud-avoid=""
         style={ruler.style}
         className={`absolute top-[15%] hidden h-[30%] w-10 md:block ${HUD_GUTTER_RIGHT_CLASSES} ${ruler.className}`}
       >
@@ -177,7 +172,6 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
       >
         <button
           type="button"
-          data-hud-avoid=""
           onClick={goToNextFrame}
           style={cta.style}
           className={`label-mono bg-signal px-6 py-4 text-ink ${cta.className}`}
@@ -186,7 +180,6 @@ export function Frame00Boot({ reducedMotion, revealGate, skullAssembled }) {
         </button>
         <div
           data-info-card=""
-          data-hud-avoid=""
           style={infoCard.style}
           className={`mt-6 hidden w-96 max-w-full sm:block ${infoCard.className}`}
         >

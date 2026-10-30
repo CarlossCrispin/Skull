@@ -75,13 +75,3 @@ describe('glass card stylesheet (Decision 45)', () => {
     }
   });
 });
-
-describe('chamfer-clip utility', () => {
-  it('cuts the same two corners as the glass card, so a frost layer cannot show outside the chamfer', () => {
-    const c = GLASS_CHAMFER_PX;
-    expect(utility('chamfer-clip').get('clip-path')).toBe(
-      `polygon(${c}px 0, 100% 0, 100% calc(100% - ${c}px), calc(100% - ${c}px) 100%, 0 100%, 0 ${c}px)`,
-    );
-  });
-});
-

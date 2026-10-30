@@ -6,9 +6,9 @@ vi.mock('../../lib/scroll/useScrollProgress.js', () => ({ useScrollProgress: () 
 
 const { Frame00Boot, FRAME_00_ID } = await import('./Frame00Boot.jsx');
 
-const OPEN = { reducedMotion: false, revealGate: true, skullAssembled: true };
-const CLOSED = { reducedMotion: false, revealGate: false, skullAssembled: true };
-const REDUCED = { reducedMotion: true, revealGate: true, skullAssembled: false };
+const OPEN = { reducedMotion: false, revealGate: true };
+const CLOSED = { reducedMotion: false, revealGate: false };
+const REDUCED = { reducedMotion: true, revealGate: true };
 
 function mount(props = OPEN) {
   const view = render(<Frame00Boot {...props} />);
@@ -213,58 +213,8 @@ describe('Frame00Boot entrance gate', () => {
   });
 
   it('shows everything immediately under reduced motion', () => {
-    const { section } = mount({ reducedMotion: true, revealGate: false, skullAssembled: true });
+    const { section } = mount({ reducedMotion: true, revealGate: false });
     expect(section.querySelector('.invisible')).toBeNull();
     expect(section.querySelectorAll('[class*="hud-"]')).toHaveLength(0);
   });
 });
-
-describe('Frame00Boot skull annotations', () => {
-  it('renders the four annotation cards in a layer hidden below md, over the skull', () => {
-    const { container } = mount();
-    const layer = container.querySelector('[data-annotation]').parentElement;
-    expect(layer).toHaveClass('hidden', 'md:block');
-    expect(layer.querySelectorAll('[data-annotation]')).toHaveLength(4);
-    expect(container.querySelector('time')).toBeInTheDocument();
-  });
-
-  it('keeps exactly one h1 with the annotations mounted', () => {
-    const { container } = mount();
-    expect(container.querySelectorAll('h1')).toHaveLength(1);
-  });
-
-  it('fades the annotations out when the skull is no longer assembled', () => {
-    const { container } = mount({ reducedMotion: false, revealGate: true, skullAssembled: false });
-    const layer = container.querySelector('[data-annotation]').parentElement;
-    expect(layer).toHaveClass('hud-fade-out');
-  });
-
-  it('keeps them hidden before the gate opens', () => {
-    const { container } = mount(CLOSED);
-    expect(container.querySelectorAll('[data-annotation]')).toHaveLength(4);
-    for (const card of container.querySelectorAll('[data-annotation]')) expect(card).toHaveClass('invisible');
-  });
-});
-
-describe('Frame00Boot annotation obstacles', () => {
-  it('marks the title block, nodes, CTA, info card, ruler and nav as areas the annotations avoid', () => {
-    const { container } = mount();
-    const avoided = [...container.querySelectorAll('[data-hud-avoid]')];
-    const has = (selector) => avoided.some((el) => el.matches(selector) || el.querySelector(selector) !== null);
-    const title = container.querySelector('h1');
-    expect(avoided.some((el) => el.contains(title))).toBe(true);
-    expect(avoided.some((el) => el.contains(title) && el.querySelector('p') !== null)).toBe(true);
-    expect(container.querySelectorAll('[data-hud-node][data-hud-avoid]')).toHaveLength(3);
-    expect(container.querySelector('button[data-hud-avoid]')).not.toBeNull();
-    expect(container.querySelector('[data-info-card][data-hud-avoid]')).not.toBeNull();
-    expect(container.querySelector('[data-hud-ruler][data-hud-avoid]')).not.toBeNull();
-    expect(container.querySelector('nav[data-hud-avoid]')).not.toBeNull();
-    expect(has('h1')).toBe(true);
-  });
-
-  it('does not mark the annotation layer itself', () => {
-    const { container } = mount();
-    expect(container.querySelector('[data-annotations][data-hud-avoid]')).toBeNull();
-  });
-});
-

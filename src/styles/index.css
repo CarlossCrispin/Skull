@@ -147,12 +147,6 @@
   background-color: color-mix(in srgb, #F8F8F8 72%, transparent);
 }
 
-/* The glass card's chamfer on its own (GLASS_CHAMFER_PX, 20 px): clips a translucent layer, such as a
-   frost background, to the same two cut corners as the frame. */
-@utility chamfer-clip {
-  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-}
-
 /* Live glass clip (WU16, WU18): fixed to the viewport, sized by script to the panel, inert. It only crops:
    the refraction runs on the viewport-sized copy inside it, so the effect's edge bands land on the
    viewport edges and the clip hides them. Nothing on the clip may transform, composite or paint. */
@@ -341,24 +335,6 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
     opacity: 1;
-  }
-}
-
-@keyframes hud-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@utility hud-fade-out {
-  animation: hud-fade-out 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-    opacity: 0;
   }
 }
 
