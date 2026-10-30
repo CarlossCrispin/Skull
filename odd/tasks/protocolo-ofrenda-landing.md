@@ -16,6 +16,11 @@ Skull2.0 starts from the Skull codebase without the calaverita poem. It leans fu
 | 04 | CALAVERA | `//FECHA_ 01–02.NOV`, countdown to Nov 2 |
 | 05 | Close: the skull reassembles | `//PATRIMONIO_ UNESCO`, barcode, signature |
 
+## Copy research findings (T4, partial, approved adjustments 2026-10-30)
+Only UNESCO was checked against a primary source (https://ich.unesco.org/en/RL/indigenous-festivity-dedicated-to-the-dead-00054). The rest comes from press or general knowledge; T4 stays open until each shipped claim has a source.
+- Safe: "Inscrita por la UNESCO en 2008 (proclamada en 2003)"; "De fines de octubre a inicios de noviembre"; "Mictlán: inframundo mexica de nueve niveles"; "Papel picado: tradición de San Salvador Huixcolotla, Puebla"; "Posada la creó como Calavera Garbancera; Rivera la bautizó Catrina (mural, 1947)"; "19.4326° N, 99.1332° O".
+- Approved rewordings: frame 02 is `//NIVELES_ 2 · 3 · 7 — VARÍAN POR REGIÓN`. Element meanings (cempasúchil, copal, velas, papel picado = viento) are prefixed with "se cree que". Frame 04 shows only `//FECHA_ 01–02.NOV`, with no split by day. Do not use the old UNESCO name or "Obra Maestra".
+
 ## Scope
 - In: skull scene and motion (reused), HUD primitives, frames 00-05, verified cultural copy, display font, build checks.
 - Out: the calaverita poem; the motionsite CloudFront video; the Graphik font (licensing unclear); any backend.
@@ -45,6 +50,10 @@ Mode: strict (source: the user's global CLAUDE.md "Strict TDD Mode: enabled"). R
 
 ## Delivery
 Forecast: well above 400 authored changed lines, so the feature needs slicing. Delivery strategy: ask-on-risk; chain strategy: stacked-to-main (user, 2026-10-30). Review boundary: fb52cc8 (bootstrap root commit, scaffold copied from reviewed Skull code). Remote: origin `CarlossCrispin/Skull.git`; push and PRs stay the user's decision.
+
+## Review log
+- T1: fb52cc8 bootstrap boundary; 9083c34 passive.
+- T2: dae30d0 + 82de452, assessed as a slice from 3cf9188: medium (909 lines), native says under_budget, so deferred to slice. A per-commit assess with --head-ref is unsupported and its result was discarded.
 
 ## Progress
 - 2026-10-30: scaffold copied from Skull, git init (main, no commits), remote added, `npm ci` done. Baseline does not compile yet (T1).
