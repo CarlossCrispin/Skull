@@ -22,8 +22,8 @@ describe('AssemblyRange', () => {
     expect(section.hasAttribute('tabindex')).toBe(false);
   });
 
-  it('is registered after the placeholder frame', () => {
-    expect(SECTIONS.map((entry) => entry.id)).toEqual(['placeholder', 'assembly-range']);
+  it('is registered after the boot frame', () => {
+    expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'assembly-range']);
   });
 });
 
