@@ -73,4 +73,23 @@ describe('GridLines entrance', () => {
     expect(vertical[1]?.style.animationDelay).not.toBe(vertical[0]?.style.animationDelay);
     expect(marks[0]?.style.animationDelay).toBe('240ms');
   });
+
+  it('starts the line stagger at delayMs and the mark stagger at markDelayMs', () => {
+    const root = grid({
+      vertical: ['20%', '80%'],
+      horizontal: ['30%'],
+      animated: true,
+      delayMs: 600,
+      markDelayMs: 1000,
+    });
+    const lines = [...root.querySelectorAll('[data-grid^="line"]')];
+    const marks = [...root.querySelectorAll('[data-grid="mark"]')];
+    expect(lines.map((line) => line.style.animationDelay)).toEqual(['600ms', '680ms', '760ms']);
+    expect(marks.map((mark) => mark.style.animationDelay)).toEqual(['1000ms', '1080ms']);
+  });
+
+  it('shifts the whole sequence by delayMs when no markDelayMs is given', () => {
+    const root = grid({ vertical: ['20%', '80%'], horizontal: ['30%'], animated: true, delayMs: 100 });
+    expect(root.querySelector('[data-grid="mark"]')?.style.animationDelay).toBe('340ms');
+  });
 });

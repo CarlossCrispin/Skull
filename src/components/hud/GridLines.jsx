@@ -5,6 +5,8 @@ import { hudDelay } from '../../lib/motion/hudDelay.js';
  * @property {readonly string[]} vertical - Positions of the vertical lines, as CSS percentages of the width (for example `'25%'`).
  * @property {readonly string[]} horizontal - Positions of the horizontal lines, as CSS percentages of the height.
  * @property {boolean} [animated] - Wipes the lines in, then scales the marks in, staggered. Off by default (static grid).
+ * @property {number} [delayMs] - Delay before the line stagger starts (the marks follow the lines unless `markDelayMs` is set).
+ * @property {number} [markDelayMs] - Delay before the mark stagger starts; the marks then stagger from their own first mark.
  */
 
 /**
@@ -12,9 +14,9 @@ import { hudDelay } from '../../lib/motion/hudDelay.js';
  * with borders) and a centered 10 px `+` mark at every intersection. It fills its positioned parent,
  * is aria-hidden and inert. Animated, the lines wipe in first and the marks follow.
  */
-export function GridLines({ vertical, horizontal, animated = false }) {
-  const entrance = (utility, index) =>
-    animated ? { className: ` ${utility}`, style: hudDelay(index) } : { className: '' };
+export function GridLines({ vertical, horizontal, animated = false, delayMs = 0, markDelayMs }) {
+  const entrance = (utility, index, baseMs = delayMs) =>
+    animated ? { className: ` ${utility}`, style: hudDelay(index, baseMs) } : { className: '' };
   const lineCount = vertical.length + horizontal.length;
   let markIndex = lineCount;
   return (
@@ -43,7 +45,11 @@ export function GridLines({ vertical, horizontal, animated = false }) {
       })}
       {vertical.flatMap((left) =>
         horizontal.map((top) => {
-          const { className, style } = entrance('hud-scale-in', markIndex++);
+          const index = markIndex++;
+          const { className, style } =
+            markDelayMs === undefined
+              ? entrance('hud-scale-in', index)
+              : entrance('hud-scale-in', index - lineCount, markDelayMs);
           return (
             <span
               key={`m-${left}-${top}`}
