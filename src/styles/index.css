@@ -5,14 +5,14 @@
 /* Only the document and app code are class sources; docs, specs and tests would emit bogus utilities. */
 @source "../../index.html";
 @source "../";
-@source not "../**/*.test.{ts,tsx}";
+@source not "../**/*.test.{js,jsx}";
 @source not "../test";
 @source not "../lib/motion";
 @source not "../lib/glass";
-@source not "../components/glass/LiquidGlassFilter.tsx";
+@source not "../components/glass/LiquidGlassFilter.jsx";
 @source not "../scene";
-@source not "./auditCss.ts";
-@source not "./contrast.ts";
+@source not "./auditCss.js";
+@source not "./contrast.js";
 
 @theme {
   --color-*: initial;
@@ -91,10 +91,10 @@
   container-type: size;
 }
 
-/* Poster square: POSTER_EXTENT (1.7) x the stage side L (STAGE_SCALE 0.84 x the short container side) = 1.428. */
+/* Poster square: POSTER_EXTENT (1.7) x the stage side L = min(STAGE_WIDTH_SCALE 1 x W, STAGE_SCALE 0.84 x H). */
 @utility skull-poster-box {
-  width: calc(min(100cqw, 100cqh) * 1.428);
-  height: calc(min(100cqw, 100cqh) * 1.428);
+  width: min(100cqw * 1.7, 100cqh * 1.428);
+  height: min(100cqw * 1.7, 100cqh * 1.428);
 }
 
 /* Assembly range: one viewport plus ASSEMBLY_RANGE_VIEWPORTS (2) of scroll; vh is the fallback. */
@@ -216,4 +216,170 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+}
+
+/* HUD entrances (expo-out). Each utility starts hidden, plays once and keeps its end state; the stagger is an
+   inline animation-delay. Under reduced motion the element renders at its end state with no animation. */
+
+@keyframes hud-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-grid-v {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-grid-h {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-draw-line {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+@utility hud-fade-up {
+  opacity: 0;
+  animation: hud-fade-up 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-slide-left {
+  opacity: 0;
+  animation: hud-slide-left 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-slide-right {
+  opacity: 0;
+  animation: hud-slide-right 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-scale-in {
+  opacity: 0;
+  animation: hud-scale-in 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-grid-v {
+  opacity: 0;
+  animation: hud-grid-v 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-grid-h {
+  opacity: 0;
+  animation: hud-grid-h 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: left;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@utility hud-draw-line {
+  opacity: 0;
+  animation: hud-draw-line 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* HUD card surface (user, 2026-10-31, option B): the page background token, fully opaque, cut to the
+   shared 20 px chamfer so scattered cubes never cross the card text. A utility because components never
+   paint bg-bg themselves. */
+@utility hud-card-surface {
+  background-color: var(--color-bg);
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
+
+/* Mobile menu panel: the page background token, fully opaque (no blur, no translucency). It is a utility
+   because components never paint bg-bg themselves; the body owns the one light surface. */
+@utility nav-panel {
+  background-color: var(--color-bg);
 }
