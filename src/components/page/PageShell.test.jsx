@@ -46,15 +46,15 @@ describe('PageShell composition', () => {
     const { container, main, grid, layer, sections } = mount();
     expect(container.querySelectorAll('main')).toHaveLength(1);
     expect(grid.hasAttribute('data-grid-overlay')).toBe(true);
-    expect(sections.map((section) => section.tagName)).toEqual(Array(6).fill('SECTION'));
+    expect(sections.map((section) => section.tagName)).toEqual(Array(7).fill('SECTION'));
     expect(sections[0]?.querySelector('h1')).not.toBeNull();
     expect(layer.getAttribute('role')).toBe('img');
     expect(main.lastElementChild).toBe(layer);
   });
 
-  it('registers the placeholder frame, frames 01 to 04, then the assembly range, and no Block A', () => {
+  it('registers the placeholder frame, frames 01 to 04, the assembly range, then frame 05, and no Block A', () => {
     const { container } = mount();
-    expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'frame-01', 'frame-02', 'frame-03', 'frame-04', 'assembly-range']);
+    expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'frame-01', 'frame-02', 'frame-03', 'frame-04', 'assembly-range', 'frame-05']);
     expect(container.querySelector('.skull-stage')).toBeNull();
   });
 
@@ -64,9 +64,12 @@ describe('PageShell composition', () => {
     for (const section of sections.slice(1, 5)) expect(section.querySelectorAll('h2')).toHaveLength(1);
   });
 
-  it('has no interactive elements', () => {
+  it('has no interactive elements except the Instagram link of the close frame', () => {
     const { container } = mount();
-    expect(container.querySelectorAll(INTERACTIVE)).toHaveLength(0);
+    const interactive = [...container.querySelectorAll(INTERACTIVE)];
+    expect(interactive).toHaveLength(1);
+    expect(interactive[0].getAttribute('href')).toBe('https://www.instagram.com/carloscrispin.cc/');
+    expect(interactive[0].closest('#frame-05')).not.toBeNull();
   });
 
   it('has exactly one h1, inside the first section, and one image role after the text', () => {
@@ -102,8 +105,8 @@ describe('PageShell registry', () => {
 
     const stub = { id: 'altar', Component: () => <section data-stub="altar">altar</section> };
     const withStub = mount(false, [...SECTIONS, stub]);
-    expect(withStub.sections).toHaveLength(7);
-    expect(withStub.sections[6]?.getAttribute('data-stub')).toBe('altar');
+    expect(withStub.sections).toHaveLength(8);
+    expect(withStub.sections[7]?.getAttribute('data-stub')).toBe('altar');
     expect(withStub.sections[5]?.hasAttribute('data-assembly-range')).toBe(true);
     expect([withStub.sections[0]?.outerHTML, withStub.sections[5]?.outerHTML, withStub.layer.outerHTML].map(stable)).toEqual(baseHtml);
   });

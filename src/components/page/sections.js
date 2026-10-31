@@ -1,5 +1,6 @@
 import { CalaveraFrame } from '../frames/CalaveraFrame.jsx';
 import { CempasuchilFrame } from '../frames/CempasuchilFrame.jsx';
+import { CloseFrame } from '../frames/CloseFrame.jsx';
 import { OfrendaFrame } from '../frames/OfrendaFrame.jsx';
 import { PapelPicadoFrame } from '../frames/PapelPicadoFrame.jsx';
 import { PlaceholderFrame } from '../frames/PlaceholderFrame.jsx';
@@ -19,4 +20,5 @@ export const SECTIONS = [
   { id: 'frame-03', Component: PapelPicadoFrame },
   { id: 'frame-04', Component: CalaveraFrame },
   { id: 'assembly-range', Component: AssemblyRange },
+  { id: 'frame-05', Component: CloseFrame },
 ];

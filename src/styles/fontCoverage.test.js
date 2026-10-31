@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { CLOSE } from '../content/close.js';
 import { FRAMES } from '../content/frames.js';
 
 /** The rendered page copy of the baseline (the visually hidden h1); later frames append theirs. */
@@ -29,13 +30,27 @@ function shippedLatinRanges(packageName) {
   return parseRanges(unicode.latin);
 }
 
-const FRAME_COPY = FRAMES.flatMap((frame) => [
-  frame.title,
-  frame.header.label,
-  frame.header.value,
-  ...frame.lines,
-  ...(frame.rows ?? []).flatMap((row) => [row.label, row.value]),
-]);
+const FRAME_COPY = [
+  ...FRAMES.flatMap((frame) => [
+    frame.title,
+    frame.header.label,
+    frame.header.value,
+    ...frame.lines,
+    ...(frame.rows ?? []).flatMap((row) => [row.label, row.value]),
+  ]),
+  CLOSE.title,
+  CLOSE.heritage.label,
+  CLOSE.heritage.value,
+  CLOSE.heritage.line,
+  CLOSE.date.label,
+  CLOSE.date.value,
+  CLOSE.countdownLabel,
+  CLOSE.author.label,
+  CLOSE.author.value,
+  CLOSE.link.text,
+  'HOY',
+  '0123456789:',
+];
 // Anton sets the titles and JetBrains Mono the rest; checking everything against both is the strict bound.
 const COPY = [TITLE.toUpperCase(), TITLE, ...FRAME_COPY, ...FRAME_COPY.map((text) => text.toUpperCase())].join('\n');
 
