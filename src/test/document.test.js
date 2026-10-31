@@ -11,7 +11,7 @@ describe('index.html', () => {
   });
 
   it('uses the approved title verbatim', () => {
-    expect(doc.title).toBe('Protocolo Ofrenda');
+    expect(doc.title).toBe('Cyberpunk Skull · CarlosCrispin · Día de Muertos');
   });
 
   it('has a short Spanish meta description about the concept', () => {
