@@ -13,22 +13,21 @@ describe('useCountdown', () => {
 
   it('returns the text for the current time right away', () => {
     const { result } = renderHook(() => useCountdown());
-    expect(result.current).toBe('04:00:00:00');
+    expect(result.current).toBe('03:00:00:00');
   });
 
   it('ticks once per second', () => {
     const { result } = renderHook(() => useCountdown());
     act(() => vi.advanceTimersByTime(1000));
-    expect(result.current).toBe('03:23:59:59');
+    expect(result.current).toBe('02:23:59:59');
     act(() => vi.advanceTimersByTime(3000));
-    expect(result.current).toBe('03:23:59:56');
+    expect(result.current).toBe('02:23:59:56');
   });
 
   it('switches to HOY when the festivity begins', () => {
     vi.setSystemTime(Date.UTC(2026, 10, 1, 5, 59, 59)); // 31 Oct 23:59:59 Mexico City
     const { result } = renderHook(() => useCountdown());
-    expect(result.current).toBe('01:00:00:01');
-    act(() => vi.advanceTimersByTime(1000));
+    expect(result.current).toBe('00:00:00:01');
     act(() => vi.advanceTimersByTime(1000));
     expect(result.current).toBe('HOY');
   });

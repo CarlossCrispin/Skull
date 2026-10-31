@@ -28,27 +28,31 @@ function isFestivityDay({ month, day }) {
   return month === NOVEMBER && (day === 1 || day === 2);
 }
 
-/** Instant of 2 November 00:00 in Mexico City of `year`, in epoch ms. */
+/** Instant of 1 November 00:00 in Mexico City of `year` (the start of the festivity), in epoch ms. */
 function targetOfYear(year) {
-  return Date.UTC(year, NOVEMBER, 2) + MEXICO_CITY_OFFSET_MS;
+  return Date.UTC(year, NOVEMBER, 1) + MEXICO_CITY_OFFSET_MS;
 }
 
+/** The festivity lasts two days: 1 and 2 November. */
+const FESTIVITY_MS = 2 * DAY_MS;
+
 /**
- * The next 2 November 00:00 (Mexico City) to count down to: this year's until 2 November is over,
- * next year's afterwards.
+ * The next 1 November 00:00 (Mexico City) to count down to: this year's until 2 November is over,
+ * next year's afterwards. Counting to the first festivity day lets the countdown reach zero
+ * exactly when it switches to HOY.
  *
  * @param {number} now - Epoch ms.
  */
 export function nextTargetMs(now) {
   const { year } = mexicoCityDate(now);
   const target = targetOfYear(year);
-  const afterFestivity = now >= target + DAY_MS;
+  const afterFestivity = now >= target + FESTIVITY_MS;
   return afterFestivity ? targetOfYear(year + 1) : target;
 }
 
 /**
  * The countdown at `now`: `{ today: true }` on 1 and 2 November (Mexico City date), otherwise the
- * remaining days, hours, minutes and seconds to the next 2 November 00:00.
+ * remaining days, hours, minutes and seconds to the next 1 November 00:00.
  *
  * @param {number} now - Epoch ms.
  * @returns {CountdownState}

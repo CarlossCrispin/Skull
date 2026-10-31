@@ -15,31 +15,31 @@ describe('pad2', () => {
 });
 
 describe('nextTargetMs', () => {
-  it('targets 2 November 00:00 Mexico City of the current year before the festivity', () => {
+  it('targets 1 November 00:00 Mexico City, the start of the festivity, of the current year', () => {
     expect(MEXICO_CITY_OFFSET_MS).toBe(6 * 3600 * 1000);
-    expect(nextTargetMs(at(2026, 1, 15))).toBe(at(2026, 11, 2));
-    expect(nextTargetMs(at(2026, 10, 31, 23, 59, 59))).toBe(at(2026, 11, 2));
+    expect(nextTargetMs(at(2026, 1, 15))).toBe(at(2026, 11, 1));
+    expect(nextTargetMs(at(2026, 10, 31, 23, 59, 59))).toBe(at(2026, 11, 1));
   });
 
   it('rolls over to the next year after 2 November', () => {
-    expect(nextTargetMs(at(2026, 11, 3))).toBe(at(2027, 11, 2));
-    expect(nextTargetMs(at(2026, 12, 31, 23, 59, 59))).toBe(at(2027, 11, 2));
+    expect(nextTargetMs(at(2026, 11, 3))).toBe(at(2027, 11, 1));
+    expect(nextTargetMs(at(2026, 12, 31, 23, 59, 59))).toBe(at(2027, 11, 1));
   });
 
   it('uses the Mexico City date, not the UTC date', () => {
     // 1 Jan 2027 03:00 UTC is still 31 Dec 2026 21:00 in Mexico City.
-    expect(nextTargetMs(Date.UTC(2027, 0, 1, 3))).toBe(at(2027, 11, 2));
+    expect(nextTargetMs(Date.UTC(2027, 0, 1, 3))).toBe(at(2027, 11, 1));
   });
 });
 
 describe('countdownAt', () => {
   it('breaks the remaining time into days, hours, minutes and seconds', () => {
     const now = at(2026, 10, 29, 22, 58, 55);
-    expect(countdownAt(now)).toEqual({ today: false, days: 3, hours: 1, minutes: 1, seconds: 5 });
+    expect(countdownAt(now)).toEqual({ today: false, days: 2, hours: 1, minutes: 1, seconds: 5 });
   });
 
-  it('keeps counting on 31 October, one day and one second before the target', () => {
-    expect(countdownAt(at(2026, 10, 31, 23, 59, 59))).toEqual({ today: false, days: 1, hours: 0, minutes: 0, seconds: 1 });
+  it('reaches the last second on 31 October, right before HOY', () => {
+    expect(countdownAt(at(2026, 10, 31, 23, 59, 59))).toEqual({ today: false, days: 0, hours: 0, minutes: 0, seconds: 1 });
   });
 
   it('shows today on 1 and 2 November in Mexico City, boundaries included', () => {
@@ -51,7 +51,7 @@ describe('countdownAt', () => {
   it('stops being today at 3 November 00:00 and counts to the next year', () => {
     const state = countdownAt(at(2026, 11, 3, 0, 0, 0));
     expect(state.today).toBe(false);
-    expect(state.days).toBe(364);
+    expect(state.days).toBe(363);
     expect(state.hours).toBe(0);
   });
 

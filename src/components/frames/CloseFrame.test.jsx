@@ -48,7 +48,7 @@ describe('CloseFrame', () => {
     expect(card.textContent).toContain('01–02.NOV');
     const live = card.querySelector('[aria-live]');
     expect(live.getAttribute('aria-live')).toBe('off');
-    expect(live.textContent).toBe('04:00:00:00');
+    expect(live.textContent).toBe('03:00:00:00');
     expect(card.textContent).toContain('CUENTA');
   });
 
