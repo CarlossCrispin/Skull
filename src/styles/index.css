@@ -91,10 +91,10 @@
   container-type: size;
 }
 
-/* Poster square: POSTER_EXTENT (1.7) x the stage side L (STAGE_SCALE 0.84 x the short container side) = 1.428. */
+/* Poster square: POSTER_EXTENT (1.7) x the stage side L = min(STAGE_WIDTH_SCALE 1 x W, STAGE_SCALE 0.84 x H). */
 @utility skull-poster-box {
-  width: calc(min(100cqw, 100cqh) * 1.428);
-  height: calc(min(100cqw, 100cqh) * 1.428);
+  width: min(100cqw * 1.7, 100cqh * 1.428);
+  height: min(100cqw * 1.7, 100cqh * 1.428);
 }
 
 /* Assembly range: one viewport plus ASSEMBLY_RANGE_VIEWPORTS (2) of scroll; vh is the fallback. */

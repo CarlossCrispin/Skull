@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { STAGE_SCALE } from '../scene/constants.js';
+import { STAGE_SCALE, STAGE_WIDTH_SCALE } from '../scene/constants.js';
 import { POSTER_EXTENT } from '../scene/poster/rasterize.js';
 import { auditCss } from './auditCss.js';
 
@@ -39,15 +39,20 @@ describe('skull hero stylesheet', () => {
     expect(css).not.toMatch(/@utility skull-hold/);
   });
 
-  it('sizes the poster as STAGE_SCALE x POSTER_EXTENT of the short container side', () => {
+  it('sizes the poster as POSTER_EXTENT x the stage side min(STAGE_WIDTH_SCALE x W, STAGE_SCALE x H)', () => {
     const body = utilityBody('skull-poster-box');
-    const factor = STAGE_SCALE * POSTER_EXTENT;
+    const widthFactor = STAGE_WIDTH_SCALE * POSTER_EXTENT;
+    const heightFactor = STAGE_SCALE * POSTER_EXTENT;
     for (const property of ['width', 'height']) {
-      const match = new RegExp(`${property}:\\s*calc\\(min\\(100cqw,\\s*100cqh\\)\\s*\\*\\s*([\\d.]+)\\)`).exec(body);
+      const match = new RegExp(
+        `${property}:\\s*min\\(100cqw\\s*\\*\\s*([\\d.]+),\\s*100cqh\\s*\\*\\s*([\\d.]+)\\)`,
+      ).exec(body);
       expect(match, `${property} in ${body}`).not.toBeNull();
-      expect(Number(match[1])).toBeCloseTo(factor, 9);
+      expect(Number(match[1])).toBeCloseTo(widthFactor, 9);
+      expect(Number(match[2])).toBeCloseTo(heightFactor, 9);
     }
-    expect(factor).toBeCloseTo(1.428, 9);
+    expect(widthFactor).toBeCloseTo(1.7, 9);
+    expect(heightFactor).toBeCloseTo(1.428, 9);
   });
 
   it('cross-fades with opacity only, over 500 ms', () => {

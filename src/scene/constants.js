@@ -5,6 +5,14 @@
  */
 export const STAGE_SCALE = 0.84;
 
+/**
+ * Fraction of the container width the stage may take. The stage side is
+ * min(STAGE_WIDTH_SCALE x W, STAGE_SCALE x H): on portrait screens the model frame spans the full
+ * width instead of 0.84 of it; landscape is unchanged and the side is continuous at W = H
+ * (user, mobile first 2026-10-31; DEFAULT-PENDING visual check).
+ */
+export const STAGE_WIDTH_SCALE = 1;
+
 /** Upper bound for the renderer pixel ratio. */
 export const MAX_DPR = 2;
 

@@ -1,4 +1,4 @@
-import { MAX_DPR, STAGE_SCALE } from './constants.js';
+import { MAX_DPR, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
 
 /** World height (voxel units) that fills exactly one stage side at the origin plane. */
 export const MODEL_FRAME_H = 56;
@@ -8,9 +8,9 @@ export const CAMERA_DISTANCE = 120;
 
 const RAD_TO_DEG = 180 / Math.PI;
 
-/** Side `L` of the centered square stage, in CSS pixels. */
+/** Side `L` of the centered square stage, in CSS pixels: the full width on portrait, 0.84 of the height otherwise. */
 export function stageSide(containerW, containerH) {
-  return STAGE_SCALE * Math.min(containerW, containerH);
+  return Math.min(STAGE_WIDTH_SCALE * containerW, STAGE_SCALE * containerH);
 }
 
 /** Vertical FOV in degrees: tan(fov/2) = H * frameH / (2 * L * d). */

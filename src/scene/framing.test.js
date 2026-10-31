@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DPR, STAGE_SCALE } from './constants.js';
+import { MAX_DPR, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
 import {
   CAMERA_DISTANCE,
   MODEL_FRAME_H,
@@ -22,22 +22,48 @@ const CORNERS = [
 ];
 
 describe('stageSide', () => {
-  it('is STAGE_SCALE times the shorter container side', () => {
+  it('is STAGE_SCALE times the height on landscape screens', () => {
     expect(STAGE_SCALE).toBe(0.84);
     expect(stageSide(1440, 900)).toBeCloseTo(STAGE_SCALE * 900, 9);
-    expect(stageSide(390, 844)).toBeCloseTo(STAGE_SCALE * 390, 9);
+    expect(stageSide(1024, 768)).toBeCloseTo(STAGE_SCALE * 768, 9);
+  });
+
+  it('fills STAGE_WIDTH_SCALE of the width on portrait screens', () => {
+    expect(STAGE_WIDTH_SCALE).toBe(1);
+    expect(stageSide(390, 844)).toBeCloseTo(STAGE_WIDTH_SCALE * 390, 9);
+    expect(stageSide(320, 568)).toBeCloseTo(STAGE_WIDTH_SCALE * 320, 9);
+  });
+
+  it('never exceeds STAGE_SCALE of the height, so the skull keeps its top and bottom padding', () => {
+    expect(stageSide(768, 800)).toBeCloseTo(STAGE_SCALE * 800, 9);
+    expect(stageSide(900, 900)).toBeCloseTo(STAGE_SCALE * 900, 9);
+  });
+
+  it('is continuous across the square aspect', () => {
+    expect(stageSide(899, 900)).toBeCloseTo(stageSide(900, 900), 6);
+    expect(stageSide(901, 900)).toBeCloseTo(stageSide(900, 900), 6);
   });
 });
 
 describe('padded framing', () => {
-  it.each([DESKTOP, MOBILE])('makes the model frame span STAGE_SCALE of the short side at $w x $h', ({ w, h }) => {
+  it.each([DESKTOP, MOBILE])('makes the model frame span the stage side at $w x $h', ({ w, h }) => {
     const [, top] = projectNormalized([0, MODEL_FRAME_H / 2, 0], w, h);
     const [right] = projectNormalized([MODEL_FRAME_H / 2, 0, 0], w, h);
-    // Normalized by L = STAGE_SCALE * min(w, h); the frame edge sits at 0.5 L from the center.
-    expect(top * stageSide(w, h) * 2).toBeCloseTo(STAGE_SCALE * Math.min(w, h), 6);
-    expect(right * stageSide(w, h) * 2).toBeCloseTo(STAGE_SCALE * Math.min(w, h), 6);
-    // Padding: the frame leaves (1 - STAGE_SCALE) / 2 of the short side free on each side.
-    expect(Math.min(w, h) / 2 - top * stageSide(w, h)).toBeCloseTo(((1 - STAGE_SCALE) / 2) * Math.min(w, h), 6);
+    // Normalized by L; the frame edge sits at 0.5 L from the center.
+    expect(top * stageSide(w, h) * 2).toBeCloseTo(stageSide(w, h), 6);
+    expect(right * stageSide(w, h) * 2).toBeCloseTo(stageSide(w, h), 6);
+  });
+
+  it('leaves (1 - STAGE_SCALE) / 2 of the height free above and below on landscape screens', () => {
+    const { w, h } = DESKTOP;
+    const [, top] = projectNormalized([0, MODEL_FRAME_H / 2, 0], w, h);
+    expect(h / 2 - top * stageSide(w, h)).toBeCloseTo(((1 - STAGE_SCALE) / 2) * h, 6);
+  });
+
+  it('spans the full width with the model frame on portrait screens', () => {
+    const { w, h } = MOBILE;
+    const [right] = projectNormalized([MODEL_FRAME_H / 2, 0, 0], w, h);
+    expect(right * stageSide(w, h) * 2).toBeCloseTo(STAGE_WIDTH_SCALE * w, 6);
   });
 
   it('projects the model corners identically (normalized by L) at both viewports', () => {

@@ -6,6 +6,10 @@ describe('scene constants', () => {
     expect(constants.STAGE_SCALE).toBe(0.84);
   });
 
+  it('lets the model frame span the full width on portrait screens', () => {
+    expect(constants.STAGE_WIDTH_SCALE).toBe(1);
+  });
+
   it('keeps the mute amounts and the 5 % on-screen share', () => {
     expect(constants.SCATTER_ONSCREEN_SHARE).toBe(0.05);
     expect(constants.SCATTER_MUTE_DESATURATE).toBe(0.7);
