@@ -1,20 +1,13 @@
 import { render } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { installIntersectionObserverStub } from '../../test/stubs.js';
 import { HUD_GUTTER_CLASSES } from '../../styles/layout.js';
-import { CLOSE } from '../../content/close.js';
 import { CloseFrame } from './CloseFrame.jsx';
 
 function mount(props = {}) {
   installIntersectionObserverStub();
   return render(<CloseFrame reducedMotion={false} revealGate {...props} />);
 }
-
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(Date.UTC(2026, 9, 29, 6, 0, 0));
-});
-afterEach(() => vi.useRealTimers());
 
 describe('CloseFrame', () => {
   it('is a transparent full-height section above the skull, content at the bottom, with the HUD gutter', () => {
@@ -26,45 +19,31 @@ describe('CloseFrame', () => {
     expect(section.classList.contains('bg-bg')).toBe(false);
   });
 
-  it('has one h2 and the 05/05 chip', () => {
+  it('shows no chip, no visible title and only a visually hidden h2', () => {
     const { container } = mount();
-    expect(container.querySelectorAll('h2')).toHaveLength(1);
-    expect(container.querySelector('h2').textContent).toBe(CLOSE.title);
-    expect(container.querySelector('[data-frame-chip]').textContent).toBe('05/05');
+    expect(container.querySelector('[data-frame-chip]')).toBeNull();
+    expect(container.querySelector('[data-frame-accent]')).toBeNull();
+    const headings = container.querySelectorAll('h2');
+    expect(headings).toHaveLength(1);
+    expect(headings[0]).toHaveClass('sr-only');
+    expect(headings[0].textContent).toBe('Autor');
+    expect(container.textContent).not.toContain('CIERRE');
+    expect(container.textContent).not.toContain('05/05');
   });
 
-  it('shows the UNESCO row and line in a HUD card', () => {
+  it('renders one HUD card: no heritage, date, countdown or barcode', () => {
     const { container } = mount();
-    const card = container.querySelector('[data-close-heritage]');
-    expect(card.querySelector('svg[data-glass-frame]')).not.toBeNull();
-    expect(card.textContent).toContain('PATRIMONIO');
-    expect(card.textContent).toContain('UNESCO');
-    expect(card.textContent).toContain('Inscrita por la UNESCO en 2008 (proclamada en 2003).');
+    expect(container.querySelectorAll('svg[data-glass-frame]')).toHaveLength(1);
+    expect(container.querySelector('[data-close-heritage], [data-close-countdown], [aria-live]')).toBeNull();
+    expect(container.querySelectorAll('svg[aria-hidden="true"]:not([data-glass-frame])')).toHaveLength(0);
+    expect(container.textContent).not.toMatch(/UNESCO|NOV|CUENTA|HOY/);
   });
 
-  it('shows the date and a live countdown that does not announce every second', () => {
-    const { container } = mount();
-    const card = container.querySelector('[data-close-countdown]');
-    expect(card.textContent).toContain('01–02.NOV');
-    const live = card.querySelector('[aria-live]');
-    expect(live.getAttribute('aria-live')).toBe('off');
-    expect(live.textContent).toBe('03:00:00:00');
-    expect(card.textContent).toContain('CUENTA');
-  });
-
-  it('shows HOY during the festivity', () => {
-    vi.setSystemTime(Date.UTC(2026, 10, 1, 18, 0, 0));
-    const { container } = mount();
-    expect(container.querySelector('[data-close-countdown] [aria-live]').textContent).toBe('HOY');
-  });
-
-  it('signs with the barcode first, then the author row, then the Instagram link', () => {
+  it('signs with the author row, then the Instagram link', () => {
     const { container } = mount();
     const card = container.querySelector('[data-close-signature]');
-    const order = [...card.querySelectorAll('svg[aria-hidden="true"]:not([data-glass-frame]), [role="group"], a')].map((node) =>
-      node.tagName === 'svg' ? 'barcode' : node.tagName === 'A' ? 'link' : 'row',
-    );
-    expect(order).toEqual(['barcode', 'row', 'link']);
+    const order = [...card.querySelectorAll('[role="group"], a')].map((node) => (node.tagName === 'A' ? 'link' : 'row'));
+    expect(order).toEqual(['row', 'link']);
     expect(card.textContent).toContain('AUTOR');
     expect(card.textContent).toContain('CARLOS CRISPIN');
   });
@@ -80,10 +59,10 @@ describe('CloseFrame', () => {
     expect(link.className).toMatch(/focus-visible:outline/);
   });
 
-  it('reveals in order with the signature card last', () => {
+  it('reveals the signature card as its only item', () => {
     const { container } = mount();
     const items = [...container.querySelectorAll('[data-reveal]')];
-    expect(items.map((item) => item.getAttribute('data-close-item'))).toEqual(['title', 'heritage', 'countdown', 'signature']);
+    expect(items.map((item) => item.getAttribute('data-close-item'))).toEqual(['signature']);
   });
 
   it('keeps the copy in the DOM and arms no hidden state under reduced motion', () => {
