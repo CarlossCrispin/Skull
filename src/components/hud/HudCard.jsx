@@ -15,7 +15,9 @@ const BADGE_TONE = {
 
 /**
  * HUD card: the shared chamfered grey frame around uniformly padded content, with an optional
- * square accent badge above it. No radius, border or shadow; the frame is the only outline.
+ * square accent badge above it. A solid page-colour surface cut to the chamfer sits behind the
+ * frame, so scattered cubes never cross the text. No radius, border or shadow; the frame is the
+ * only outline.
  */
 export function HudCard({ children, label, tone = 'accent', className = '' }) {
   return (
@@ -25,6 +27,7 @@ export function HudCard({ children, label, tone = 'accent', className = '' }) {
           {label}
         </span>
       )}
+      <div data-hud-surface="" aria-hidden="true" className="hud-card-surface absolute inset-0" />
       <ChamferFrame />
       <div className="relative p-5">{children}</div>
     </div>

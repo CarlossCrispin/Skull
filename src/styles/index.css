@@ -370,6 +370,14 @@
   }
 }
 
+/* HUD card surface (user, 2026-10-31, option B): the page background token, fully opaque, cut to the
+   shared 20 px chamfer so scattered cubes never cross the card text. A utility because components never
+   paint bg-bg themselves. */
+@utility hud-card-surface {
+  background-color: var(--color-bg);
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+}
+
 /* Mobile menu panel: the page background token, fully opaque (no blur, no translucency). It is a utility
    because components never paint bg-bg themselves; the body owns the one light surface. */
 @utility nav-panel {

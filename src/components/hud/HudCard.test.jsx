@@ -20,6 +20,17 @@ describe('HudCard', () => {
     expect(root.outerHTML).not.toMatch(/rounded|shadow|\bborder\b|blur|gradient/);
   });
 
+  it('paints a solid page-colour surface behind the content so scattered cubes never cross the text', () => {
+    const { container } = render(<HudCard>Offering</HudCard>);
+    const surface = container.querySelector('[data-hud-surface]');
+    expect(surface).not.toBeNull();
+    expect(surface).toHaveClass('hud-card-surface', 'absolute', 'inset-0');
+    expect(surface).toHaveAttribute('aria-hidden', 'true');
+    const frame = container.querySelector('svg[data-glass-frame]');
+    expect(surface.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(surface.compareDocumentPosition(screen.getByText('Offering')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('renders no badge unless a label is given', () => {
     const { container } = render(<HudCard>Offering</HudCard>);
     expect(container.querySelector('[data-hud-badge]')).toBeNull();

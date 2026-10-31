@@ -62,6 +62,15 @@ describe('HUD entrance utilities', () => {
   });
 });
 
+describe('HUD card surface', () => {
+  it('is a solid bg-token surface cut to the shared 20 px chamfer: no blur, translucency or filter', () => {
+    const body = block(css, '@utility hud-card-surface ');
+    expect(body).toMatch(/background-color:\s*var\(--color-bg\);/);
+    expect(body).toContain('clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);');
+    expect(body).not.toMatch(/blur|backdrop|filter|opacity|color-mix|rgba/);
+  });
+});
+
 describe('nav panel surface', () => {
   it('is a solid bg-token surface: no blur, translucency or filter', () => {
     const body = block(css, '@utility nav-panel ');
