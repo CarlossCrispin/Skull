@@ -175,6 +175,7 @@ describe('GlassPanel modes (Decision 39)', () => {
     ['context lost', 'lost', { filterSupported: true }],
     ['scene loading', 'loading', { filterSupported: true }],
     ['filter unsupported', 'ready', { filterSupported: false }],
+    ['touch-only device', 'ready', { filterSupported: true, touchOnly: true }],
   ])('is frost with no window, copy or filter for %s', (_name, status, props) => {
     const { panel } = renderWithContext(status, props);
     expect(panel.getAttribute('data-glass-mode')).toBe('frost');

@@ -1,4 +1,5 @@
 import { useContext, useLayoutEffect, useRef, useState } from 'react';
+import { isTouchOnly } from '../../lib/device/touchOnly.js';
 import { resolveGlassMode, supportsGlassFilter } from '../../lib/glass/glassWindow.js';
 import { GLASS_PANEL_ATTR } from '../../lib/layout/anchors.js';
 import { ChamferFrame } from './ChamferFrame.jsx';
@@ -14,6 +15,7 @@ import { useGlassPerfGuard } from './useGlassPerfGuard.js';
  * @property {boolean} [reducedMotion] - Under reduced motion the panel is visible at first paint and never hidden.
  * @property {boolean} [revealGate] - Opening gate (G6): the panel is hidden until it is true, then fades in with the title.
  * @property {boolean} [filterSupported] - Overrides the browser capability check for the refraction reference (tests); default `CSS.supports`.
+ * @property {boolean} [touchOnly] - Overrides the touch-only device check (tests); default `isTouchOnly()`.
  */
 
 const HIDDEN_ATTRIBUTE = 'data-glass-hidden';
@@ -36,12 +38,15 @@ export function GlassPanel({
   reducedMotion = false,
   revealGate = true,
   filterSupported,
+  touchOnly,
 }) {
   const panelRef = useRef(null);
   const { mirror, sceneStatus } = useContext(GlassContext);
   const [supported] = useState(() => filterSupported ?? supportsGlassFilter());
+  const [touch] = useState(() => touchOnly ?? isTouchOnly());
   const isLive = (degraded) =>
-    mirror !== null && resolveGlassMode({ reducedMotion, sceneStatus, filterSupported: supported, degraded }) === 'live';
+    mirror !== null &&
+    resolveGlassMode({ reducedMotion, sceneStatus, filterSupported: supported, degraded, touchOnly: touch }) === 'live';
   const degraded = useGlassPerfGuard(isLive(false));
   const live = isLive(degraded);
   const hidden = !reducedMotion && !revealGate;

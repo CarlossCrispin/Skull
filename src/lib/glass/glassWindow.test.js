@@ -97,6 +97,7 @@ describe('resolveGlassMode', () => {
     ['kill switch off', { enabled: false }],
     ['filter unsupported', { filterSupported: false }],
     ['performance degraded', { degraded: true }],
+    ['touch-only device', { touchOnly: true }],
   ])('is frost for %s', (_name, patch) => {
     expect(resolveGlassMode({ ...READY, ...patch })).toBe('frost');
   });

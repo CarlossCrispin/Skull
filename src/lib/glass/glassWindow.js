@@ -61,13 +61,14 @@ export function glassWindowRect(
  * @property {SceneStatus} sceneStatus
  * @property {boolean} filterSupported
  * @property {boolean} degraded
+ * @property {boolean} [touchOnly] - Touch-only devices always get frost (mobile first, 2026-10-31).
  * @property {boolean} [enabled] - Kill switch; defaults to `GLASS_LIVE_ENABLED`.
  */
 
-/** Live only with a ready scene, supported filter, normal motion and an acceptable frame time. */
+/** Live only with a ready scene, supported filter, normal motion, an acceptable frame time and a non-touch-only device. */
 export function resolveGlassMode(input) {
-  const { reducedMotion, sceneStatus, filterSupported, degraded, enabled = GLASS_LIVE_ENABLED } = input;
-  const live = enabled && !reducedMotion && !degraded && filterSupported && sceneStatus === 'ready';
+  const { reducedMotion, sceneStatus, filterSupported, degraded, touchOnly = false, enabled = GLASS_LIVE_ENABLED } = input;
+  const live = enabled && !reducedMotion && !degraded && !touchOnly && filterSupported && sceneStatus === 'ready';
   return live ? 'live' : 'frost';
 }
 

@@ -4,6 +4,7 @@ import { OPENING_DONE } from '../lib/motion/opening.js';
 import { composePose, zoomStageZ } from '../lib/motion/pose.js';
 import { buildSkull } from './buildSkullMesh.js';
 import { LATTICE_ENABLED } from './constants.js';
+import { isTouchOnly } from '../lib/device/touchOnly.js';
 import { CAMERA_DISTANCE, capDpr, deriveFovDegrees, worldUnitsPerViewportHeight } from './framing.js';
 import { patchVoxelMaterial } from './material/voxelMaterial.js';
 import { createLightRig } from './lighting.js';
@@ -73,6 +74,7 @@ export class SkullScene {
       now: () => performance.now(),
       patchMaterial: patchVoxelMaterial,
       devicePixelRatio: () => window.devicePixelRatio || 1,
+      touchOnly: isTouchOnly,
       ...opts.deps,
     };
     try {
@@ -222,7 +224,7 @@ export class SkullScene {
     this.width = Math.max(1, width);
     this.height = Math.max(1, height);
     const renderer = this.renderer;
-    renderer.setPixelRatio(capDpr(this.deps.devicePixelRatio()));
+    renderer.setPixelRatio(capDpr(this.deps.devicePixelRatio(), this.deps.touchOnly()));
     renderer.setSize(this.width, this.height, false);
     this.camera.aspect = this.width / this.height;
     this.camera.fov = deriveFovDegrees(this.width, this.height);

@@ -1,4 +1,4 @@
-import { MAX_DPR, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
+import { MAX_DPR, MAX_DPR_TOUCH, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
 
 /** World height (voxel units) that fills exactly one stage side at the origin plane. */
 export const MODEL_FRAME_H = 56;
@@ -43,7 +43,7 @@ export function projectNormalized(
   return [x * scale, y * scale];
 }
 
-/** Renderer pixel ratio, capped at MAX_DPR. */
-export function capDpr(dpr) {
-  return Math.min(dpr, MAX_DPR);
+/** Renderer pixel ratio, capped at MAX_DPR, or at MAX_DPR_TOUCH on touch-only devices. */
+export function capDpr(dpr, touchOnly = false) {
+  return Math.min(dpr, touchOnly ? MAX_DPR_TOUCH : MAX_DPR);
 }

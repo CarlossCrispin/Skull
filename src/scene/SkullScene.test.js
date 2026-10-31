@@ -181,6 +181,12 @@ describe('SkullScene construction', () => {
     expect(setup({}, 1.5).renderers[0].pixelRatio).toBe(1.5);
   });
 
+  it('caps the pixel ratio at 1.5 on touch-only devices (3 -> 1.5, 1 -> 1)', () => {
+    expect(setup({ deps: { touchOnly: () => true } }, 3).renderers[0].pixelRatio).toBe(1.5);
+    expect(setup({ deps: { touchOnly: () => true } }, 1).renderers[0].pixelRatio).toBe(1);
+    expect(setup({ deps: { touchOnly: () => false } }, 3).renderers[0].pixelRatio).toBe(2);
+  });
+
   it('resize updates setSize(w, h, false), pixel ratio and the camera aspect/FOV', () => {
     const { scene, scheduler, renderers } = setup();
     scene.start();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DPR, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
+import { MAX_DPR, MAX_DPR_TOUCH, STAGE_SCALE, STAGE_WIDTH_SCALE } from './constants.js';
 import {
   CAMERA_DISTANCE,
   MODEL_FRAME_H,
@@ -133,5 +133,13 @@ describe('capDpr', () => {
     expect(capDpr(3)).toBe(2);
     expect(capDpr(1.5)).toBe(1.5);
     expect(capDpr(1)).toBe(1);
+  });
+
+  it('caps at MAX_DPR_TOUCH on touch-only devices', () => {
+    expect(MAX_DPR_TOUCH).toBe(1.5);
+    expect(capDpr(3, true)).toBe(1.5);
+    expect(capDpr(2, true)).toBe(1.5);
+    expect(capDpr(1, true)).toBe(1);
+    expect(capDpr(3, false)).toBe(2);
   });
 });

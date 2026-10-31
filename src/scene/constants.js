@@ -16,6 +16,9 @@ export const STAGE_WIDTH_SCALE = 1;
 /** Upper bound for the renderer pixel ratio. */
 export const MAX_DPR = 2;
 
+/** Upper bound for the renderer pixel ratio on touch-only devices (user, mobile first 2026-10-31). */
+export const MAX_DPR_TOUCH = 1.5;
+
 /**
  * Draws the static wireframe cage around the skull (1 extra draw call).
  * Confirmed ON by the user D5. Flipping it requires regenerating the poster.
