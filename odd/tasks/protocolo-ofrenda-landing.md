@@ -57,6 +57,7 @@ Forecast: well above 400 authored changed lines, so the feature needs slicing. D
 - T2: dae30d0 + 82de452, assessed as a slice from 3cf9188: medium (909 lines), native says under_budget, so deferred to slice. A per-commit assess with --head-ref is unsupported and its result was discarded.
 
 ## Progress
+- 2026-10-30: delivery. Pushed main = fb52cc8 (scaffold). The user chose ONE PR over the stacked chain: PR #1 https://github.com/CarlossCrispin/Skull/pull/1 (feat/protocolo-ofrenda -> main, about 6.8k lines, 31 commits). Native review not run for the deferred medium slices.
 - 2026-10-30: scroll cue. Frame 00 shows the icon-only chevron (ScrollIndicator) at the bottom centre once the opening gate opens (after the explosion); it fades in, bobs and hides on the first scroll. Under reduced motion it shows at once without bob. Tailwind gotcha: a class glued to a template placeholder (`bottom-8${...}`) is not generated, so use whole class tokens. Tests 947 passed; build and check:dist ok; browser checked at 1280x713 (chevron at y 665-681 of 713, hidden after scroll).
 - 2026-10-30: scaffold copied from Skull, git init (main, no commits), remote added, `npm ci` done. Baseline does not compile yet (T1).
 - 2026-10-30: T1 done in commit fb52cc8 on `feat/protocolo-ofrenda`. `npx vitest run`: 72 files / 849 tests passed; `npm run typecheck`: clean; `npm run build && npm run check:dist`: ok (CSS audit clean, 204.4 KB gz JS).
