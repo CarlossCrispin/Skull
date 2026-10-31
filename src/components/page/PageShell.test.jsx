@@ -46,16 +46,22 @@ describe('PageShell composition', () => {
     const { container, main, grid, layer, sections } = mount();
     expect(container.querySelectorAll('main')).toHaveLength(1);
     expect(grid.hasAttribute('data-grid-overlay')).toBe(true);
-    expect(sections.map((section) => section.tagName)).toEqual(['SECTION', 'SECTION']);
+    expect(sections.map((section) => section.tagName)).toEqual(Array(6).fill('SECTION'));
     expect(sections[0]?.querySelector('h1')).not.toBeNull();
     expect(layer.getAttribute('role')).toBe('img');
     expect(main.lastElementChild).toBe(layer);
   });
 
-  it('registers the placeholder frame then the assembly range, and no Block A', () => {
+  it('registers the placeholder frame, frames 01 to 04, then the assembly range, and no Block A', () => {
     const { container } = mount();
-    expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'assembly-range']);
+    expect(SECTIONS.map((entry) => entry.id)).toEqual(['frame-00', 'frame-01', 'frame-02', 'frame-03', 'frame-04', 'assembly-range']);
     expect(container.querySelector('.skull-stage')).toBeNull();
+  });
+
+  it('renders frames 01 to 04 between the placeholder and the assembly range, one h2 each', () => {
+    const { sections } = mount();
+    expect(sections.slice(1, 5).map((section) => section.id)).toEqual(['frame-01', 'frame-02', 'frame-03', 'frame-04']);
+    for (const section of sections.slice(1, 5)) expect(section.querySelectorAll('h2')).toHaveLength(1);
   });
 
   it('has no interactive elements', () => {
@@ -91,15 +97,15 @@ describe('PageShell registry', () => {
     const base = mount();
     // useId values differ between mounts; the markup is otherwise compared byte for byte.
     const stable = (html) => html?.replace(/(id|aria-labelledby)="[^"]*"/g, '$1="#"');
-    const baseHtml = [base.sections[0]?.outerHTML, base.sections[1]?.outerHTML, base.layer.outerHTML].map(stable);
+    const baseHtml = [base.sections[0]?.outerHTML, base.sections[5]?.outerHTML, base.layer.outerHTML].map(stable);
     base.unmount();
 
     const stub = { id: 'altar', Component: () => <section data-stub="altar">altar</section> };
     const withStub = mount(false, [...SECTIONS, stub]);
-    expect(withStub.sections).toHaveLength(3);
-    expect(withStub.sections[2]?.getAttribute('data-stub')).toBe('altar');
-    expect(withStub.sections[1]?.hasAttribute('data-assembly-range')).toBe(true);
-    expect([withStub.sections[0]?.outerHTML, withStub.sections[1]?.outerHTML, withStub.layer.outerHTML].map(stable)).toEqual(baseHtml);
+    expect(withStub.sections).toHaveLength(7);
+    expect(withStub.sections[6]?.getAttribute('data-stub')).toBe('altar');
+    expect(withStub.sections[5]?.hasAttribute('data-assembly-range')).toBe(true);
+    expect([withStub.sections[0]?.outerHTML, withStub.sections[5]?.outerHTML, withStub.layer.outerHTML].map(stable)).toEqual(baseHtml);
   });
 });
 
@@ -134,11 +140,11 @@ describe('PageShell native scroll', () => {
 });
 
 describe('PageShell opening wiring', () => {
-  it('puts the empty assembly range right after the placeholder frame and the layer last', () => {
+  it('puts the empty assembly range right after frame 04 and the layer last', () => {
     const { sections, layer, main } = mount();
-    expect(sections[1]?.hasAttribute('data-assembly-range')).toBe(true);
-    expect(sections[1]?.textContent).toBe('');
-    expect((sections[0]).compareDocumentPosition(sections[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(sections[5]?.hasAttribute('data-assembly-range')).toBe(true);
+    expect(sections[5]?.textContent).toBe('');
+    expect((sections[4]).compareDocumentPosition(sections[5]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(main.lastElementChild).toBe(layer);
   });
 

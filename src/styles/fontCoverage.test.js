@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { FRAMES } from '../content/frames.js';
 
 /** The rendered page copy of the baseline (the visually hidden h1); later frames append theirs. */
 const TITLE = 'Protocolo Ofrenda';
@@ -28,7 +29,15 @@ function shippedLatinRanges(packageName) {
   return parseRanges(unicode.latin);
 }
 
-const COPY = [TITLE.toUpperCase(), TITLE].join('\n');
+const FRAME_COPY = FRAMES.flatMap((frame) => [
+  frame.title,
+  frame.header.label,
+  frame.header.value,
+  ...frame.lines,
+  ...(frame.rows ?? []).flatMap((row) => [row.label, row.value]),
+]);
+// Anton sets the titles and JetBrains Mono the rest; checking everything against both is the strict bound.
+const COPY = [TITLE.toUpperCase(), TITLE, ...FRAME_COPY, ...FRAME_COPY.map((text) => text.toUpperCase())].join('\n');
 
 describe('font coverage of the approved copy', () => {
   it('covers every code point with the Anton latin subset', () => {

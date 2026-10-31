@@ -55,3 +55,19 @@ describe('DataRow', () => {
     expect(screen.getByRole('group', { name: 'B' })).toHaveTextContent('2');
   });
 });
+
+describe('DataRow wrap', () => {
+  it('lets a long value wrap under the label, left aligned, when wrap is set', () => {
+    const { container } = render(<DataRow label="AGUA" value="Se cree que calma la sed." wrap />);
+    const line = container.querySelector('[data-datarow-line]');
+    expect(line).toHaveClass('flex-wrap');
+    const value = screen.getByText('Se cree que calma la sed.');
+    expect(value).toHaveClass('whitespace-normal', 'text-left');
+    expect(value).not.toHaveClass('whitespace-nowrap', 'shrink-0');
+  });
+
+  it('keeps the single-line layout by default', () => {
+    const { container } = render(<DataRow label="SYS" value="X" />);
+    expect(container.querySelector('[data-datarow-line]')).not.toHaveClass('flex-wrap');
+  });
+});
