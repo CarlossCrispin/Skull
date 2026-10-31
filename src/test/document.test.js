@@ -19,6 +19,20 @@ describe('index.html', () => {
     expect(description).toBe('Un concepto ciberpunk del Día de Muertos: una calavera de vóxeles, paneles HUD y una ofrenda hecha de datos.');
   });
 
+  it('declares the author', () => {
+    expect(doc.querySelector('meta[name="author" i]')?.getAttribute('content')).toBe('Carlos Crispin');
+  });
+
+  it('has Open Graph tags that mirror the title and the description, without image or url', () => {
+    const og = (property) => doc.querySelector(`meta[property="${property}"]`)?.getAttribute('content');
+    expect(og('og:title')).toBe(doc.title);
+    expect(og('og:description')).toBe(doc.querySelector('meta[name="description" i]')?.getAttribute('content'));
+    expect(og('og:type')).toBe('website');
+    expect(og('og:locale')).toBe('es_MX');
+    expect(doc.querySelector('meta[property="og:image"]')).toBeNull();
+    expect(doc.querySelector('meta[property="og:url"]')).toBeNull();
+  });
+
   it('references no external hosts', () => {
     const urls = [...doc.querySelectorAll('link[href], script[src]')].map(
       (node) => node.getAttribute('href') ?? node.getAttribute('src') ?? '',
